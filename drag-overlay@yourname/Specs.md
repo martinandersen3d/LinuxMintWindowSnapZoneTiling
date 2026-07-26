@@ -153,3 +153,13 @@ During mouse tracking:
 
 4. If window is maximized, unmaximize it first.
 5. Move and resize `activeWindow` to `(TargetX, TargetY, TargetW, TargetH)`.
+
+---
+
+
+Next feature:
+- When pressing super+z, the popup window should actually get focus.
+- Only when activated with hotkey: Each of the groups should have a labed with a number from 1-0 (1,2,3,4,5,6,7,8,9,0), just like the windows 11 win+z, where the user can use the keyboard to pick a zone. When a zone is selected, then use have a label in each zone to pick the final zone. 
+- the zone that the user picked, is where the program will end
+
+do you have questions?
