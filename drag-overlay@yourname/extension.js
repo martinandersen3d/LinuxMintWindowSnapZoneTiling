@@ -388,53 +388,49 @@ function updateZoneHover(mx, my, isShiftPressed) {
 
     let newSelectedIndices = [];
 
-    if (isShiftPressed) {
+    // If mouse is outside all zones, clear selection state completely
+    if (hoveredIndex === -1) {
+        activeZoneIndex = -1;
+        initialZoneIndex = -1;
+    } else if (isShiftPressed) {
         // Lock initial tile if Shift was just pressed
-        if (initialZoneIndex < 0 && activeZoneIndex >= 0) {
-            initialZoneIndex = activeZoneIndex;
-        } else if (initialZoneIndex < 0 && hoveredIndex >= 0) {
+        if (initialZoneIndex < 0) {
             initialZoneIndex = hoveredIndex;
         }
 
-        if (initialZoneIndex >= 0) {
-            let targetGroup = zones[initialZoneIndex].groupIdx;
+        let targetGroup = zones[initialZoneIndex].groupIdx;
 
-            // If mouse is currently hovering over a tile in the SAME group
-            if (hoveredIndex >= 0 && zones[hoveredIndex].groupIdx === targetGroup) {
-                activeZoneIndex = hoveredIndex;
-            }
-
-            // Calculate rectangular bounding box containing initial tile and active tile
-            let initDef = zones[initialZoneIndex].def;
-            let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
-
-            let minX = Math.min(initDef.x, activeDef.x);
-            let minY = Math.min(initDef.y, activeDef.y);
-            let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
-            let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
-
-            // Select all tiles in the SAME group enclosed by this bounding rectangle
-            zones.forEach((zone, idx) => {
-                if (zone.groupIdx === targetGroup) {
-                    let d = zone.def;
-                    let centerX = d.x + (d.w / 2);
-                    let centerY = d.y + (d.h / 2);
-
-                    if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
-                        newSelectedIndices.push(idx);
-                    }
-                }
-            });
-        }
-    } else {
-        // Shift released: reset lock
-        initialZoneIndex = -1;
-        if (hoveredIndex >= 0) {
+        // Only update active tile if hovering in the same group
+        if (zones[hoveredIndex].groupIdx === targetGroup) {
             activeZoneIndex = hoveredIndex;
-            newSelectedIndices = [hoveredIndex];
-        } else if (activeZoneIndex >= 0) {
-            newSelectedIndices = [activeZoneIndex];
         }
+
+        // Calculate rectangular bounding box containing initial tile and active tile
+        let initDef = zones[initialZoneIndex].def;
+        let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
+
+        let minX = Math.min(initDef.x, activeDef.x);
+        let minY = Math.min(initDef.y, activeDef.y);
+        let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
+        let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
+
+        // Select all tiles in the SAME group enclosed by this bounding rectangle
+        zones.forEach((zone, idx) => {
+            if (zone.groupIdx === targetGroup) {
+                let d = zone.def;
+                let centerX = d.x + (d.w / 2);
+                let centerY = d.y + (d.h / 2);
+
+                if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
+                    newSelectedIndices.push(idx);
+                }
+            }
+        });
+    } else {
+        // Normal single hover (Shift released)
+        initialZoneIndex = -1;
+        activeZoneIndex = hoveredIndex;
+        newSelectedIndices = [hoveredIndex];
     }
 
     // Update visuals if selection changed
