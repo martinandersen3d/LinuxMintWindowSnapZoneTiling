@@ -1,0 +1,21 @@
+{
+    "layout": {
+        "type": "layout",
+        "pages": ["main"],
+        "main": {
+            "type": "page",
+            "title": "Shortcuts",
+            "sections": ["shortcuts-section"]
+        }
+    },
+    "shortcuts-section": {
+        "type": "section",
+        "title": "Keyboard Shortcuts",
+        "keys": ["toggle-overlay-key"]
+    },
+    "toggle-overlay-key": {
+        "type": "keybinding",
+        "description": "Window Snapping Zones Tiling",
+        "default": "<Super>z"
+    }
+}

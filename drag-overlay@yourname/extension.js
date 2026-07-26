@@ -3,6 +3,7 @@ const Meta = imports.gi.Meta;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const Clutter = imports.gi.Clutter;
+const Settings = imports.ui.settings;
 
 let grabBeginId = 0;
 let grabEndId = 0;
@@ -15,6 +16,9 @@ let zones = [];
 let activeZoneIndex = -1;
 let initialZoneIndex = -1; // Locks the starting tile when Shift is held
 let selectedZoneIndices = [];
+
+let extensionSettings = null;
+let extensionUuid = "";
 
 // Helper generator for equal-width vertical split layouts (full height)
 function createEqualVerticalLayout(count) {
@@ -137,19 +141,49 @@ const LAYOUT_GROUPS = [
     createSplitVerticalLayout(6)
 ];
 
-function init(metadata) {}
+function init(metadata) {
+    extensionUuid = metadata.uuid;
+}
 
 function enable() {
+    try {
+        extensionSettings = new Settings.ExtensionSettings(this, extensionUuid);
+
+        // Bind via Main.keybindingManager using the gsettings key name
+        Main.keybindingManager.addHotKey(
+            "toggle-overlay-key",
+            extensionSettings.getValue("toggle-overlay-key"),
+            onHotkeyTriggered
+        );
+
+        // Update shortcut dynamically if user changes it in settings UI
+        extensionSettings.connect("changed::toggle-overlay-key", () => {
+            Main.keybindingManager.removeHotKey("toggle-overlay-key");
+            Main.keybindingManager.addHotKey(
+                "toggle-overlay-key",
+                extensionSettings.getValue("toggle-overlay-key"),
+                onHotkeyTriggered
+            );
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Keybinding error: " + e.message);
+    }
+
     try {
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
     } catch (e) {
-        global.logError("[drag-overlay] Error in enable: " + e.message);
+        global.logError("[drag-overlay] Grab event error: " + e.message);
     }
 }
 
 function disable() {
     try {
+        Main.keybindingManager.removeHotKey("toggle-overlay-key");
+        if (extensionSettings) {
+            extensionSettings.unbindKeybinding("toggle-overlay-key");
+            extensionSettings = null;
+        }
         if (grabBeginId > 0) {
             global.display.disconnect(grabBeginId);
             grabBeginId = 0;
@@ -165,6 +199,20 @@ function disable() {
         destroyOverlay();
     } catch (e) {
         global.logError("[drag-overlay] Error in disable: " + e.message);
+    }
+}
+
+function onHotkeyTriggered() {
+    try {
+        if (overlayContainer) {
+            destroyOverlay();
+        } else {
+            activeWindow = global.display.get_focus_window();
+            showOverlay();
+            startMouseTracking();
+        }
+    } catch (e) {
+        global.logError("[drag-overlay] Error in onHotkeyTriggered: " + e.message);
     }
 }
 
