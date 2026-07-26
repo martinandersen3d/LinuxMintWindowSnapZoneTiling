@@ -157,9 +157,95 @@ During mouse tracking:
 ---
 
 
-Next feature:
-- When pressing super+z, the popup window should actually get focus.
-- Only when activated with hotkey: Each of the groups should have a labed with a number from 1-0 (1,2,3,4,5,6,7,8,9,0), just like the windows 11 win+z, where the user can use the keyboard to pick a zone. When a zone is selected, then use have a label in each zone to pick the final zone. 
-- the zone that the user picked, is where the program will end
+Here is the complete functional specification for the new keyboard navigation and focus feature, incorporating your answers.
 
-do you have questions?
+---
+
+## Technical Specifications: Keyboard Navigation & Focus Mode
+
+### Overview
+
+Enhance the `drag-overlay` extension to support full Windows 11-style `Super+Z` keyboard navigation. When invoked via hotkey, the popup overlay steals focus and allows the user to navigate and snap windows using number keys, arrow keys, and Shift modifier key combinations.
+
+---
+
+### Functional Requirements
+
+#### 1. Focus & Input Grab Mode
+
+* **Hotkey Trigger (`Super+Z`):**
+* Captures the currently active window as `activeWindow`.
+* Opens the overlay popup and **grabs keyboard focus**.
+* Shows numeric indicators (`1` through `0`) on layout groups.
+
+
+* **Dismissal Behavior:**
+* Pressing `Escape` or `Super+Z`:
+* If in **Tile Selection Mode (Step 2)**: Steps back to **Group Selection Mode (Step 1)**.
+* If in **Group Selection Mode (Step 1)**: Closes the overlay and restores original window focus.
+
+
+
+
+
+---
+
+#### 2. Navigation State Machine
+
+```
+[ Super+Z ] ──> [ Step 1: Group Selection ] ──( Select Group )──> [ Step 2: Tile Selection ]
+                         │                                                    │
+                 ( Esc / Super+Z )                                    ( Esc / Super+Z )
+                         │                                                    │
+                         ▼                                                    ▼
+                     [ Close ] <─────────────────────────────────── [ Back to Step 1 ]
+
+```
+
+---
+
+#### 3. Step 1: Group Selection Mode
+
+* **Numeric Shortcuts (`1`–`0`):**
+* `1` through `9` select **Groups 1–9**.
+* `0` selects **Group 10**.
+* Number shortcuts are ignored for **Groups 11–15**.
+
+
+* **Arrow Key Navigation:**
+* Users can navigate between all layout groups (**Groups 1–15**) using `Up`, `Down`, `Left`, and `Right` arrow keys.
+* The currently focused group is drawn with a distinct highlight border.
+* Pressing `Enter` or `Space` confirms the group selection and transitions to **Step 2**.
+
+
+
+---
+
+#### 4. Step 2: Tile Selection Mode
+
+* **Tile Indicators:**
+* Labels switch from showing group numbers to showing individual tile numbers (`1`, `2`, `3`, etc.) within the selected group.
+
+
+* **Single Tile Selection:**
+* Pressing a tile number key (or navigating with arrow keys and pressing `Enter`) snaps `activeWindow` to that tile, closes the overlay, and restores window focus.
+
+
+* **Multi-Tile Expansion (Shift + Navigation):**
+* **Shift + Arrow Keys:** Expands the selection box from the starting tile across adjacent tiles in the same group.
+* **Shift + Tile Number:** Selects a range spanning from the initial focused tile to the secondary tile number pressed.
+* Pressing `Enter` snaps `activeWindow` to the combined bounding area of all selected tiles, closes the overlay, and restores window focus.
+
+
+
+---
+
+#### 5. Mouse Dragging Compatibility (Unchanged)
+
+* Dragging a window via mouse bypasses keyboard focus grabbing.
+* No numerical badges are rendered during a mouse-drag event.
+* All existing hover and Shift-drag multi-zone calculations remain functional for mouse interactions.
+
+---
+
+### No further questions! Shall I go ahead and implement this spec into your `extension.js` script?
