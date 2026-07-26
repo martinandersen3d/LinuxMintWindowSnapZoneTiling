@@ -1,0 +1,49 @@
+.drag-overlay-container {
+    background-color: rgba(20, 20, 20, 0.92);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+}
+
+.drag-group-card {
+    background-color: rgba(40, 40, 40, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+}
+
+.drag-group-card-focused {
+    background-color: rgba(60, 60, 60, 0.85);
+    border: 2px solid #1DA1F2;
+    border-radius: 8px;
+}
+
+.drag-zone-tile {
+    background-color: rgba(80, 80, 80, 0.50);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.drag-zone-tile-focused {
+    background-color: rgba(29, 161, 242, 0.85);
+    border: 1px solid #1DA1F2;
+    border-radius: 4px;
+}
+
+.drag-badge-zone {
+    font-weight: bold;
+    font-size: 10px;
+    color: #ffffff;
+    background-color: rgba(30, 30, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
+.drag-badge-group {
+    font-weight: bold;
+    font-size: 11px;
+    color: #ffffff;
+    background-color: rgba(20, 20, 20, 0.90);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    padding: 1px 6px;
+}
