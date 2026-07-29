@@ -326,18 +326,18 @@ function buildOverlayUIOnce() {
         });
 
         let titleLine = new St.Label({
-            text: "Brand Title Ver 1.0",
-            style: "font-weight: bold; font-size: 13px; color: rgba(255,255,255,0.95); text-align: center;"
+            text: "Snappy Window Tiling Ver 1.0",
+            style: "font-weight: bold; font-size: 16px; color: rgba(255,255,255,0.95); text-align: center;"
         });
 
         let helpLine = new St.Label({
             text: "Press a number, or use the arrow keys, to select a zone.",
-            style: "font-size: 11px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
+            style: "font-size: 13px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
         });
 
         let optionalLine = new St.Label({
             text: "(Optional) Hold Shift to expand selection.",
-            style: "font-size: 10px; color: rgba(170,170,170,0.8); text-align: center;"
+            style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
         });
 
         footerBox.add_actor(titleLine);
@@ -370,6 +370,7 @@ function showOverlay() {
 
         selectedZoneIndices = [];
         initialZoneIndex = -1;
+        activeZoneIndex = -1;
         navStep = 1;
         selectedGroupIdx = 0;
         focusedGroupIdx = 0;
@@ -408,7 +409,6 @@ function showOverlay() {
             // hotkey-activated overlay is open, reusing the same hover
             // highlighting used during a mouse-drag.
             startMouseTracking();
-
             renderKeyboardUI();
         }
     } catch (e) {
@@ -645,7 +645,7 @@ function updateKeyboardTileSelection(isShiftPressed) {
 
             updateSelectedZones(newIndices);
         } else {
-            initialZoneIndex = -1;
+            initialZoneIndex = activeGlobalIdx;
             updateSelectedZones([activeGlobalIdx]);
         }
     } catch (e) {
@@ -834,7 +834,7 @@ function onKeyPress(actor, event) {
 
         const totalGroups = LAYOUT_GROUPS.length;
         const isArrowKey = (symbol === Clutter.KEY_Left || symbol === Clutter.KEY_Right ||
-                             symbol === Clutter.KEY_Up || symbol === Clutter.KEY_Down);
+                            symbol === Clutter.KEY_Up || symbol === Clutter.KEY_Down);
 
         if (navStep === 1) {
             if (isArrowKey) {
@@ -920,7 +920,7 @@ function confirmKeyboardSnap() {
 function onButtonPress(actor, event) {
     try {
         if (!isHotkeyActivated) return false;
-        if (event.get_button() !== 1) return false; // left-click only
+        if (event.get_button() !== 1) return false;
 
         let [mx, my] = event.get_coords();
         let mods = event.get_state();
@@ -996,43 +996,45 @@ function updateZoneHover(mx, my, isShiftPressed) {
 
         let newSelectedIndices = [];
 
-        if (hoveredIndex === -1) {
-            activeZoneIndex = -1;
-            initialZoneIndex = -1;
-        } else if (isShiftPressed) {
-            if (initialZoneIndex < 0) {
-                initialZoneIndex = hoveredIndex;
-            }
-
-            let targetGroup = zones[initialZoneIndex].groupIdx;
-
-            if (zones[hoveredIndex].groupIdx === targetGroup) {
-                activeZoneIndex = hoveredIndex;
-            }
-
-            let initDef = zones[initialZoneIndex].def;
-            let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
-
-            let minX = Math.min(initDef.x, activeDef.x);
-            let minY = Math.min(initDef.y, activeDef.y);
-            let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
-            let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
-
-            zones.forEach((zone, idx) => {
-                if (zone.groupIdx === targetGroup) {
-                    let d = zone.def;
-                    let centerX = d.x + (d.w / 2);
-                    let centerY = d.y + (d.h / 2);
-
-                    if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
-                        newSelectedIndices.push(idx);
-                    }
-                }
-            });
-        } else {
-            initialZoneIndex = -1;
+        if (hoveredIndex !== -1) {
             activeZoneIndex = hoveredIndex;
-            newSelectedIndices = [hoveredIndex];
+        }
+
+        if (isShiftPressed) {
+            if (initialZoneIndex < 0) {
+                initialZoneIndex = activeZoneIndex >= 0 ? activeZoneIndex : hoveredIndex;
+            }
+
+            if (initialZoneIndex >= 0) {
+                let targetGroup = zones[initialZoneIndex].groupIdx;
+                let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
+                let initDef = zones[initialZoneIndex].def;
+
+                let minX = Math.min(initDef.x, activeDef.x);
+                let minY = Math.min(initDef.y, activeDef.y);
+                let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
+                let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
+
+                zones.forEach((zone, idx) => {
+                    if (zone.groupIdx === targetGroup) {
+                        let d = zone.def;
+                        let centerX = d.x + (d.w / 2);
+                        let centerY = d.y + (d.h / 2);
+
+                        if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
+                            newSelectedIndices.push(idx);
+                        }
+                    }
+                });
+            }
+        } else {
+            if (hoveredIndex !== -1) {
+                initialZoneIndex = hoveredIndex;
+                newSelectedIndices = [hoveredIndex];
+            } else if (activeZoneIndex >= 0) {
+                initialZoneIndex = activeZoneIndex;
+                newSelectedIndices = [activeZoneIndex];
+            }
         }
 
         if (!arraysEqual(selectedZoneIndices, newSelectedIndices)) {
