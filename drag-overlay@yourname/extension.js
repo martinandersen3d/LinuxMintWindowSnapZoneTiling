@@ -68,6 +68,78 @@ function createSplitVerticalLayout(count) {
     }
 }
 
+function createGrid3x3Layout() {
+    try {
+        let layout = [];
+        let rows = 3, cols = 3;
+        let width = 1.0 / cols;
+        let height = 1.0 / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                layout.push({
+                    name: `R${r + 1}C${c + 1}`,
+                    x: c * width,
+                    y: r * height,
+                    w: width,
+                    h: height
+                });
+            }
+        }
+        return layout;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in createGrid3x3Layout: " + e.message);
+        return [];
+    }
+}
+
+function createGrid4x4Layout() {
+    try {
+        let layout = [];
+        let rows = 4, cols = 4;
+        let width = 1.0 / cols;
+        let height = 1.0 / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                layout.push({
+                    name: `R${r + 1}C${c + 1}`,
+                    x: c * width,
+                    y: r * height,
+                    w: width,
+                    h: height
+                });
+            }
+        }
+        return layout;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in createGrid4x4Layout: " + e.message);
+        return [];
+    }
+}
+
+function createGrid5x4Layout() {
+    try {
+        let layout = [];
+        let rows = 4, cols = 5;
+        let width = 1.0 / cols;
+        let height = 1.0 / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                layout.push({
+                    name: `R${r + 1}C${c + 1}`,
+                    x: c * width,
+                    y: r * height,
+                    w: width,
+                    h: height
+                });
+            }
+        }
+        return layout;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in createGrid5x4Layout: " + e.message);
+        return [];
+    }
+}
+
 function getMonitorAtPointer() {
     try {
         let [x, y] = global.get_pointer();
@@ -128,7 +200,10 @@ const LAYOUT_GROUPS = [
     createEqualVerticalLayout(6),
     createSplitVerticalLayout(4),
     createSplitVerticalLayout(5),
-    createSplitVerticalLayout(6)
+    createSplitVerticalLayout(6),
+    createGrid3x3Layout(),
+    createGrid4x4Layout(),
+    createGrid5x4Layout()
 ];
 
 function init(metadata) {
