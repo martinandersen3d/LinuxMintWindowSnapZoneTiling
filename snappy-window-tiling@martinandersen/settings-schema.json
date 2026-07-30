@@ -15,7 +15,7 @@
     },
     "toggle-snappy-window-tiling": {
         "type": "keybinding",
-        "description": "Snappy Window Tiling",
+        "description": "Keyboard shortcut to open Snappy Window Tiling",
         "default": "<Super>z"
     }
 }
