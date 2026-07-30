@@ -19,17 +19,17 @@ Effortlessly organize your workspace using fast keyboard navigation or seamless 
 
 ## Usage
 
+### 🖱️ Mouse-Drag Mode
+1. Drag any window titlebar.
+2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
+3. *(Optional)* Hold `Shift` while hovering to select multiple zones simultaneously.
+
 ### ⌨️ Keyboard Mode
 1. Press your configured hotkey (e.g., `Super + G` or custom binding).
 2. **Step 1:** Select a **Layout Group** using digits `1`–`9` (or `0` for 10th), or navigate with **Arrow Keys** and press `Enter`.
 3. **Step 2:** Select a target **Zone Tile** using digit keys or arrow keys.
 4. *(Optional)* Hold `Shift` while moving arrow keys to select a region spanning multiple tiles. (Hold `Shift` down, while you press `Enter` to complete)
 5. Press `Enter` to snap!
-
-### 🖱️ Mouse-Drag Mode
-1. Drag any window titlebar.
-2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
-3. Hold `Shift` while hovering to select multiple zones simultaneously.
 
 ---
 
