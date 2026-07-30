@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DIR="/mnt/hgfs/LinuxMintWindowSnapZoneTiling/snappy-window-tiling@martinandersen"
+SRC_DIR="/mnt/hgfs/LinuxMintWindowSnapZoneTiling/snappy-window-tiling@martinandersen/files/snappy-window-tiling@martinandersen"
 DEST_ROOT="${HOME}/.local/share/cinnamon/extensions"
 DEST_DIR="${DEST_ROOT}/snappy-window-tiling@martinandersen"
 APPLET_UUID="snappy-window-tiling@martinandersen"

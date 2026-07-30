@@ -1,100 +1,75 @@
-Here is a complete, polished `README.md` for your GitHub repository, complete with project badges, setup steps, feature highlights, and a quick architecture overview.
+# Snappy Window Tiling - Linux Mint Cinnamon Extension
+
+**Snappy Window Tiling** is a powerful grid-based window management extension for Linux Mint (Cinnamon Desktop). 
+Effortlessly organize your workspace using fast keyboard navigation or seamless mouse-drag overlay zones.
+
+![Snappy Demo](https://github.com/user/repo/assets/12345678/your-demo-video.mp4)
 
 ---
 
-```markdown
-# Brand Title Ver 1.0 — Desktop Layout Snapper
+## Features
 
-An interactive window-snapping utility overlay for desktop window managers. Built to give power users instant layout tiling—drag any application window to open the overlay visualizer, drop it into a tile, or hold `Shift` to combine adjacent layout zones seamlessly.
+* **Grid & Split Layouts:** Choose from classic half-splits, 3-column layouts, 3x3 grids, 4x4 grids, ultra-wide 5x4 grids, and equal vertical columns.
+* **Dual Navigation Modes:** 
+  * **Hotkey Overlay:** Trigger with a configurable keyboard shortcut to snap the focused window step-by-step using digit keys or arrow keys.
+  * **Mouse Drag Snap:** Hold/drag your window to view visual snap zones dynamically.
+* **Multi-Zone Selection:** Hold `Shift` to span windows across multiple adjacent grid cells simultaneously.
+* **Multi-Monitor Ready:** Automatically detects pointer location to display overlay and target grids on the active monitor.
+---
+
+## Usage
+
+### ⌨️ Keyboard Mode
+1. Press your configured hotkey (e.g., `Super + G` or custom binding).
+2. **Step 1:** Select a **Layout Group** using digits `1`–`9` (or `0` for 10th), or navigate with **Arrow Keys** and press `Enter`.
+3. **Step 2:** Select a target **Zone Tile** using digit keys or arrow keys.
+4. *(Optional)* Hold `Shift` while moving arrow keys to select a region spanning multiple tiles. (Hold `Shift` down, while you press `Enter` to complete)
+5. Press `Enter` to snap!
+
+### 🖱️ Mouse-Drag Mode
+1. Drag any window titlebar.
+2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
+3. Hold `Shift` while hovering to select multiple zones simultaneously.
 
 ---
 
-## 🚀 Features
+## ⚙️ How to Customize the Hotkey
 
-- **15 Pre-Configured Layout Presets**: Ranging from simple 50/50 splits and 3-column layouts to complex multi-row grid splitters.
-- **Dynamic Multi-Zone Snapping**: Hold `Shift` while hovering to expand your selection across adjacent tiles within a group to create custom window spans.
-- **Non-Intrusive Overlay**: Automatically appears when a window move/drag operation begins and vanishes immediately after dropping.
-- **Accurate Pixel Snapping**: Calculates precise display boundary ratios for single and multi-monitor setups.
+You can easily change the shortcut key used to trigger the overlay:
 
----
-
-## 🛠 Usage & Controls
-
-1. **Triggering the Overlay**: Click and drag any application window. The layout picker overlay will appear automatically near the top of your screen.
-2. **Basic Snap**: Drag your cursor over any highlighted layout tile and release the window.
-3. **Multi-Zone Expand**: Hold **`Shift`** while hovering over a zone to expand the highlight box across adjacent tiles within the same layout preset. Release the mouse button to snap the window across the combined layout bounds.
+1. Open **System Settings** -> **Extensions**.
+2. Locate **Snappy Window Tiling** under the **Manage** tab.
+3. Click the **Gear icon** (⚙️) next to the extension to open its settings window.
+4. Click on the **Toggle Overlay Shortcut** field and press your preferred key combination (e.g., `<Super>z`).
+5. The shortcut updates immediately—no system restart required!
 
 ---
 
-## 📸 Interface Layout
+## Installation
 
-The overlay displays a 3×5 grid of layout presets with centered bottom instruction guidelines:
+### Option 1: Via Cinnamon Spices (Recommended)
+1. Open **System Settings** -> **Extensions**.
+2. Click the **Download** tab.
+3. Search for **Snappy Window Tiling**.
+4. Click **Install**, then activate it under the **Manage** tab.
 
-```text
-+-------------------------------------------------------------+
-|                      [ Layout Grid ]                        |
-|   [ 50/50 ]      [ 3 Col ]      [ 4 Quadrants ]             |
-|   [ 75/25 ]      [ 25/50/25 ]  [ 25/75 ]                    |
-|   [ 80/20 ]      [ 20/60/20 ]  [ 20/80 ]                    |
-|   [ 4 Col ]      [ 5 Col ]      [ 6 Col ]                   |
-|   [ 4 Col 2x2 ]  [ 5 Col 2x2 ]  [ 6 Col 2x2 ]               |
-|                                                             |
-|                    Brand Title Ver 1.0                      |
-|            Drag a window onto a zone to snap.               |
-|        (Optional) Hold Shift to expand selection.           |
-+-------------------------------------------------------------+
+### Option 2: Manual Installation (Development)
+Clone the repository directly into your local Cinnamon extension directory:
 
-```
-
----
-
-## 🔧 Installation
-
-### Prerequisites
-
-* **GNOME Shell** (compatible with modern GNOME Shell versions)
-* `St`, `Clutter`, `Meta`, and `Mainloop` JavaScript bindings available.
-
-### Quick Install (Manual)
-
-1. Clone this repository into your local GNOME Shell extensions directory:
 ```bash
-mkdir -p ~/.local/share/gnome-shell/extensions/
-cd ~/.local/share/gnome-shell/extensions/
-git clone [https://github.com/your-username/brand-title-layout-snapper.x.org.git](https://github.com/your-username/brand-title-layout-snapper.x.org.git)
-
-```
-
-
-2. Restart GNOME Shell:
-* **Wayland**: Log out and log back in (or restart session).
-* **X11**: Press `Alt + F2`, type `r`, and press `Enter`.
-
-
-3. Enable the extension:
-```bash
-gnome-extensions enable brand-title-layout-snapper.x.org
-
-```
-
+mkdir -p ~/.local/share/cinnamon/extensions
+cd ~/.local/share/cinnamon/extensions
+git clone [https://github.com/YOUR_USERNAME/snappy-window-tiling.git](https://github.com/YOUR_USERNAME/snappy-window-tiling.git) snappy-window-tiling@yourdomain
 
 
 ---
 
-## 🏗 Architecture & Mechanics
+## Layout Options
 
-For developers looking to port this extension to other desktop environments (KDE, Windows, macOS, or Hyprland/Wayland compositors):
+Snappy Window Tiling includes built-in configurations for almost any workflow:
 
-* **Event Listeners**: Hooks into global window move triggers (`grab-op-begin` and `grab-op-end`).
-* **Hit Testing Loop**: Uses a `~30ms` polling loop reading screen pointer coordinates `(x, y)` and modifier key bitmasks (`Clutter.ModifierType.SHIFT_MASK`).
-* **Multi-Tile Selection Bounding**: Calculates normalized minimum and maximum coordinates ($minX, minY, maxX, maxY$) when holding `Shift` to draw composite target geometry.
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-```
-
-```
+| Category | Available Layouts |
+| :--- | :--- |
+| **Standard Splits** | Left/Right, Split Quarter Grid, Asymmetric Wide/Narrow Splits |
+| **Vertical Columns** | 3-Column, 4-Column, 5-Column, 6-Column Equal Layouts |
+| **Grid Power-User** | 3x3, 4x4, and 5x4 Precision Grids |
