@@ -434,7 +434,11 @@ function showOverlay() {
         activeMonitor = getMonitorAtPointer();
 
         const popupX = Math.floor(activeMonitor.x + (activeMonitor.width - overlayContainer.width) / 2);
-        const popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.15));
+        var popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.15));
+        if(activeMonitor.height  < 1000){
+            popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.05));
+        }
+        
 
         overlayContainer.set_position(popupX, popupY);
 
