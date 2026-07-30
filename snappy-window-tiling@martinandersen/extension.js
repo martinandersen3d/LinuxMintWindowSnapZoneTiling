@@ -221,17 +221,17 @@ function enable() {
         extensionSettings = new Settings.ExtensionSettings(this, extensionUuid);
 
         Main.keybindingManager.addHotKey(
-            "toggle-overlay-key",
-            extensionSettings.getValue("toggle-overlay-key"),
+            "toggle-snappy-window-tiling",
+            extensionSettings.getValue("toggle-snappy-window-tiling"),
             onHotkeyTriggered
         );
 
-        extensionSettings.connect("changed::toggle-overlay-key", () => {
+        extensionSettings.connect("changed::toggle-snappy-window-tiling", () => {
             try {
-                Main.keybindingManager.removeHotKey("toggle-overlay-key");
+                Main.keybindingManager.removeHotKey("toggle-snappy-window-tiling");
                 Main.keybindingManager.addHotKey(
-                    "toggle-overlay-key",
-                    extensionSettings.getValue("toggle-overlay-key"),
+                    "toggle-snappy-window-tiling",
+                    extensionSettings.getValue("toggle-snappy-window-tiling"),
                     onHotkeyTriggered
                 );
             } catch (err) {
@@ -248,9 +248,9 @@ function enable() {
 
 function disable() {
     try {
-        Main.keybindingManager.removeHotKey("toggle-overlay-key");
+        Main.keybindingManager.removeHotKey("toggle-snappy-window-tiling");
         if (extensionSettings) {
-            extensionSettings.unbindKeybinding("toggle-overlay-key");
+            extensionSettings.unbindKeybinding("toggle-snappy-window-tiling");
             extensionSettings = null;
         }
         if (grabBeginId > 0) {

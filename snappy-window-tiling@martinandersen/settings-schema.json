@@ -11,11 +11,11 @@
     "shortcuts-section": {
         "type": "section",
         "title": "Keyboard Shortcuts",
-        "keys": ["toggle-overlay-key"]
+        "keys": ["toggle-snappy-window-tiling"]
     },
-    "toggle-overlay-key": {
+    "toggle-snappy-window-tiling": {
         "type": "keybinding",
-        "description": "Window Snapping Zones Tiling",
+        "description": "Snappy Window Tiling",
         "default": "<Super>z"
     }
 }

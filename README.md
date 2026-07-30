@@ -1,4 +1,4 @@
-# Snappy Window Tiling
+# Snappy Window Tiling - Linux Mint Cinnamon Extension
 
 **Snappy Window Tiling** is a powerful grid-based window management extension for Linux Mint (Cinnamon Desktop). 
 Effortlessly organize your workspace using fast keyboard navigation or seamless mouse-drag overlay zones.
