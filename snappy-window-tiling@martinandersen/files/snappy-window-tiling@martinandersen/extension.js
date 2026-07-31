@@ -3,7 +3,9 @@ const Meta = imports.gi.Meta;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const Clutter = imports.gi.Clutter;
-const Settings = imports.ui.settings;
+// settingsManager is loaded lazily inside init() once the extension path is
+// on imports.searchPath — the UUID-based import path is unreliable in Cinnamon.
+let SettingsManager = null;
 
 // ---------------------------------------------------------------------------
 // Layout grid geometry (used for both rendering and Step 1 arrow navigation)
@@ -36,7 +38,6 @@ let lastMouseX = -1;
 let lastMouseY = -1;
 let lastShiftState = false;
 
-let extensionSettings = null;
 let extensionUuid = "";
 
 function createEqualVerticalLayout(count) {
@@ -209,6 +210,12 @@ const LAYOUT_GROUPS = [
 function init(metadata) {
     try {
         extensionUuid = metadata.uuid;
+        // Add the extension's own directory to the GJS search path so that
+        // 'imports.settingsManager' resolves to settingsManager.js next to
+        // extension.js without needing the UUID-based path.
+        imports.searchPath.push(metadata.path);
+        SettingsManager = imports.settingsManager;
+        SettingsManager.init(extensionUuid);
     } catch (e) {
         global.logError("[drag-overlay] Init error: " + e.message);
     }
@@ -216,43 +223,49 @@ function init(metadata) {
 
 function enable() {
     try {
+        SettingsManager.log("enable() called");
         buildOverlayUIOnce();
 
-        extensionSettings = new Settings.ExtensionSettings(this, extensionUuid);
+        SettingsManager.createSettings(this);
 
-        Main.keybindingManager.addHotKey(
-            "toggle-snappy-window-tiling",
-            extensionSettings.getValue("toggle-snappy-window-tiling"),
-            onHotkeyTriggered
-        );
-
-        extensionSettings.connect("changed::toggle-snappy-window-tiling", () => {
+        function refreshHotkey() {
             try {
                 Main.keybindingManager.removeHotKey("toggle-snappy-window-tiling");
-                Main.keybindingManager.addHotKey(
-                    "toggle-snappy-window-tiling",
-                    extensionSettings.getValue("toggle-snappy-window-tiling"),
-                    onHotkeyTriggered
-                );
+                if (SettingsManager.isKeyboardEnabled()) {
+                    Main.keybindingManager.addHotKey(
+                        "toggle-snappy-window-tiling",
+                        SettingsManager.getHotkey(),
+                        onHotkeyTriggered
+                    );
+                    SettingsManager.log("refreshHotkey() registered: " + SettingsManager.getHotkey());
+                } else {
+                    SettingsManager.log("refreshHotkey() keyboard disabled, hotkey not registered");
+                }
             } catch (err) {
-                global.logError("[drag-overlay] Keybinding change error: " + err.message);
+                SettingsManager.log("refreshHotkey() ERROR: " + err.message);
+                global.logError("[drag-overlay] Keybinding refresh error: " + err.message);
             }
-        });
+        }
+
+        refreshHotkey();
+
+        SettingsManager.connectChanged("toggle-snappy-window-tiling", refreshHotkey);
+        SettingsManager.connectChanged("enable-keyboard-snapping", refreshHotkey);
 
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
+        SettingsManager.log("enable() done  grabBeginId=" + grabBeginId + "  grabEndId=" + grabEndId);
     } catch (e) {
+        SettingsManager.log("enable() ERROR: " + e.message);
         global.logError("[drag-overlay] Enable error: " + e.message);
     }
 }
 
 function disable() {
     try {
+        SettingsManager.log("disable() called");
         Main.keybindingManager.removeHotKey("toggle-snappy-window-tiling");
-        if (extensionSettings) {
-            extensionSettings.unbindKeybinding("toggle-snappy-window-tiling");
-            extensionSettings = null;
-        }
+        SettingsManager.destroy();
         if (grabBeginId > 0) {
             global.display.disconnect(grabBeginId);
             grabBeginId = 0;
@@ -580,6 +593,7 @@ function destroyOverlayUI() {
 
 function onHotkeyTriggered() {
     try {
+        SettingsManager.log("onHotkeyTriggered() overlayVisible=" + (overlayContainer ? overlayContainer.visible : 'no-container'));
         if (overlayContainer && overlayContainer.visible) {
             hideOverlay();
         } else {
@@ -588,6 +602,7 @@ function onHotkeyTriggered() {
             showOverlay();
         }
     } catch (e) {
+        SettingsManager.log("onHotkeyTriggered() ERROR: " + e.message);
         global.logError("[drag-overlay] Error in onHotkeyTriggered: " + e.message);
     }
 }
@@ -595,6 +610,9 @@ function onHotkeyTriggered() {
 function onGrabBegin(display, screen, window, op) {
     try {
         if (op === Meta.GrabOp.MOVING || op === Meta.GrabOp.KEYBOARD_MOVING) {
+            SettingsManager.log("onGrabBegin() dragEnabled=" + SettingsManager.isDragEnabled());
+            if (!SettingsManager.isDragEnabled()) return;
+
             activeWindow = window;
 
             if (hideTimerId > 0) {

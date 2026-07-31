@@ -4,18 +4,33 @@
         "pages": ["main"],
         "main": {
             "type": "page",
-            "title": "Shortcuts",
-            "sections": ["shortcuts-section"]
+            "title": "Snappy Window Tiling",
+            "sections": ["features-section", "shortcuts-section"]
+        },
+        "features-section": {
+            "type": "section",
+            "title": "Features",
+            "keys": ["enable-drag-snapping", "enable-keyboard-snapping"]
+        },
+        "shortcuts-section": {
+            "type": "section",
+            "title": "Keyboard Shortcuts",
+            "keys": ["toggle-snappy-window-tiling"]
         }
     },
-    "shortcuts-section": {
-        "type": "section",
-        "title": "Keyboard Shortcuts",
-        "keys": ["toggle-snappy-window-tiling"]
+    "enable-drag-snapping": {
+        "type": "switch",
+        "description": "Enable drag-to-snap (show zone overlay when dragging a window)",
+        "default": true
+    },
+    "enable-keyboard-snapping": {
+        "type": "switch",
+        "description": "Enable keyboard hotkey to open the zone overlay",
+        "default": true
     },
     "toggle-snappy-window-tiling": {
         "type": "keybinding",
-        "description": "Keyboard shortcut to open Snappy Window Tiling",
+        "description": "Hotkey to open Snappy Window Tiling",
         "default": "<Super>z"
     }
 }
