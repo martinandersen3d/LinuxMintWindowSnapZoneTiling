@@ -1139,6 +1139,75 @@ function applyZoneStyle(zone, isHighlighted) {
     }
 }
 
+/**
+ * Returns the usable work area for a monitor, excluding panels/docks.
+ *
+ * Primary:  Meta/Muffin workspace work-area API — the compositor already
+ *           tracks every panel's strut reservation, including auto-hide panels
+ *           (which report a zero strut when hidden, so the full screen is
+ *           returned, matching the desired behaviour).
+ *
+ * Fallback: Walk Cinnamon's panelManager to measure panel actors manually.
+ *           Auto-hiding panels are skipped (same logic as the primary path).
+ *
+ * Last resort: raw monitor geometry (original behaviour).
+ */
+function getWorkAreaForMonitor(monitor) {
+    // --- Primary: Meta work area API ---
+    try {
+        let monitors = Main.layoutManager.monitors;
+        let monitorIndex = -1;
+        for (let i = 0; i < monitors.length; i++) {
+            if (monitors[i] === monitor) { monitorIndex = i; break; }
+        }
+
+        if (monitorIndex >= 0) {
+            let workspace = global.screen
+                ? global.screen.get_active_workspace()
+                : global.display.get_workspace_manager().get_active_workspace();
+
+            if (workspace) {
+                let area = workspace.get_work_area_for_monitor(monitorIndex);
+                if (area) {
+                    return { x: area.x, y: area.y, width: area.width, height: area.height };
+                }
+            }
+        }
+    } catch (e) {
+        global.logError("[drag-overlay] Primary work area detection failed, using fallback: " + e.message);
+    }
+
+    // --- Fallback: Cinnamon panelManager ---
+    try {
+        let wx = monitor.x, wy = monitor.y, ww = monitor.width, wh = monitor.height;
+
+        let panels = Main.panelManager
+            ? Main.panelManager.getPanels()
+            : (Main.panel ? [Main.panel] : []);
+
+        panels.forEach(panel => {
+            if (!panel || !panel.actor) return;
+            // Skip auto-hiding panels — they don't obstruct windows when hidden
+            if (panel.isHideable && panel._hidden) return;
+
+            let ph = panel.actor.height;
+            let pos = panel.panelPosition; // 0=top 1=bottom 2=left 3=right
+
+            if      (pos === 0) { wy += ph; wh -= ph; }
+            else if (pos === 1) { wh -= ph; }
+            else if (pos === 2) { wx += ph; ww -= ph; }
+            else if (pos === 3) { ww -= ph; }
+        });
+
+        return { x: wx, y: wy, width: ww, height: wh };
+    } catch (e2) {
+        global.logError("[drag-overlay] Fallback work area detection failed: " + e2.message);
+    }
+
+    // --- Last resort: raw monitor geometry ---
+    return { x: monitor.x, y: monitor.y, width: monitor.width, height: monitor.height };
+}
+
 function snapWindowToSelectedZones(window, indices) {
     try {
         if (indices.length === 0) return;
@@ -1155,10 +1224,11 @@ function snapWindowToSelectedZones(window, indices) {
             if ((def.y + def.h) > maxY) maxY = def.y + def.h;
         });
 
-        let targetX = Math.floor(monitor.x + (minX * monitor.width));
-        let targetY = Math.floor(monitor.y + (minY * monitor.height));
-        let targetW = Math.floor((maxX - minX) * monitor.width);
-        let targetH = Math.floor((maxY - minY) * monitor.height);
+        let workArea = getWorkAreaForMonitor(monitor);
+        let targetX = Math.floor(workArea.x + (minX * workArea.width));
+        let targetY = Math.floor(workArea.y + (minY * workArea.height));
+        let targetW = Math.floor((maxX - minX) * workArea.width);
+        let targetH = Math.floor((maxY - minY) * workArea.height);
 
         if (window.get_maximized()) {
             window.unmaximize(Meta.MaximizeFlags.BOTH);
