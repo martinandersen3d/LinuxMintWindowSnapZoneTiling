@@ -1128,10 +1128,10 @@ function updateZoneHover(mx, my, isShiftPressed) {
             if (hoveredIndex !== -1) {
                 initialZoneIndex = hoveredIndex;
                 newSelectedIndices = [hoveredIndex];
-            } else if (activeZoneIndex >= 0) {
-                initialZoneIndex = activeZoneIndex;
-                newSelectedIndices = [activeZoneIndex];
             }
+            // hoveredIndex === -1 means the mouse is outside the overlay —
+            // leave newSelectedIndices empty so nothing is highlighted and
+            // releasing the window here does not snap it anywhere.
         }
 
         if (!arraysEqual(selectedZoneIndices, newSelectedIndices)) {
