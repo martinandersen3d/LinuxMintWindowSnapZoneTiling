@@ -60,7 +60,26 @@ Clone the repository directly into your local Cinnamon extension directory:
 mkdir -p ~/.local/share/cinnamon/extensions
 cd ~/.local/share/cinnamon/extensions
 git clone [https://github.com/YOUR_USERNAME/snappy-window-tiling.git](https://github.com/YOUR_USERNAME/snappy-window-tiling.git) snappy-window-tiling@yourdomain
+```
 
+---
+
+## ⚙️ Configuration
+
+Open **System Settings → Extensions**, select **Snappy Window Tiling**, and click the **Gear icon** (⚙️).
+
+### Features
+
+| Setting | Default | Description |
+| :--- | :---: | :--- |
+| **Enable drag-to-snap** | ✅ On | Show the zone overlay when dragging a window by its titlebar. Disable this if you only want keyboard-based snapping. |
+| **Enable keyboard hotkey** | ✅ On | Register the global hotkey that opens the overlay for the focused window. Disable this if you only want drag-to-snap. |
+
+### Keyboard Shortcuts
+
+| Setting | Default | Description |
+| :--- | :---: | :--- |
+| **Hotkey** | `Super + Z` | The global key combination that triggers the overlay. Click the field and press any key combination to change it. Changes take effect immediately — no restart required. |
 
 ---
 
@@ -73,3 +92,6 @@ Snappy Window Tiling includes built-in configurations for almost any workflow:
 | **Standard Splits** | Left/Right, Split Quarter Grid, Asymmetric Wide/Narrow Splits |
 | **Vertical Columns** | 3-Column, 4-Column, 5-Column, 6-Column Equal Layouts |
 | **Grid Power-User** | 3x3, 4x4, and 5x4 Precision Grids |
+
+---
+
