@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DIR="/mnt/hgfs/LinuxMintWindowSnapZoneTiling/snappy-window-tiling@martinandersen/files/snappy-window-tiling@martinandersen"
+SRC_DIR="/mnt/hgfs/LinuxMintWindowSnapZoneTiling/snappy-window-tiling@martinandersen3d/files/snappy-window-tiling@martinandersen3d"
 DEST_ROOT="${HOME}/.local/share/cinnamon/extensions"
-DEST_DIR="${DEST_ROOT}/snappy-window-tiling@martinandersen"
-APPLET_UUID="snappy-window-tiling@martinandersen"
+DEST_DIR="${DEST_ROOT}/snappy-window-tiling@martinandersen3d"
+APPLET_UUID="snappy-window-tiling@martinandersen3d"
 EXTENSION_KIND="APPLET"
 
 if [ ! -d "${SRC_DIR}" ]; then

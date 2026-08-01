@@ -1,10 +1,13 @@
 # Snappy Window Tiling - Linux Mint Cinnamon Extension
-
 **Snappy Window Tiling** is a powerful grid-based window management extension for Linux Mint (Cinnamon Desktop). 
 Effortlessly organize your workspace using fast keyboard navigation or seamless mouse-drag overlay zones.
 
-![Snappy Demo](https://github.com/user/repo/assets/12345678/your-demo-video.mp4)
+![Snappy Window Tiling](../media/snappy-window-tiling.png)
 
+
+
+
+![alt text](../media/SnappyWindowsTiling.gif)
 ---
 
 ## Features
@@ -47,20 +50,31 @@ You can easily change the shortcut key used to trigger the overlay:
 
 ### Installation
 
-### Option 1: Via Cinnamon Spices (Recommended)
+<!-- ### Option 1: Via Cinnamon Spices (Recommended)
 1. Open **System Settings** -> **Extensions**.
 2. Click the **Download** tab.
 3. Search for **Snappy Window Tiling**.
-4. Click **Install**, then activate it under the **Manage** tab.
+4. Click **Install**, then activate it under the **Manage** tab. -->
 
-### Option 2: Manual Installation (Development)
-Clone the repository directly into your local Cinnamon extension directory:
-
+### Manual Installation
+#### STEP 1:  Paste this into your terminal:
 ```bash
-mkdir -p ~/.local/share/cinnamon/extensions
-cd ~/.local/share/cinnamon/extensions
-git clone [https://github.com/YOUR_USERNAME/snappy-window-tiling.git](https://github.com/YOUR_USERNAME/snappy-window-tiling.git) snappy-window-tiling@yourdomain
+curl -L https://github.com/USERNAME/REPO/archive/refs/heads/main.zip -o /tmp/ext-swb.zip \
+  && unzip /tmp/ext-swb.zip "REPO-main/SnappyWindowBorderResizing@martinandersen/files/SnappyWindowBorderResizing@martinandersen/*" -d /tmp/ext-swb \
+  && mv "/tmp/ext-swb/REPO-main/SnappyWindowBorderResizing@martinandersen/files/SnappyWindowBorderResizing@martinandersen" \
+        ~/.local/share/cinnamon/extensions/
 ```
+
+
+#### STEP 2: Check files is installed at the correct location:
+- `~/.local/share/cinnamon/extensions/SnappyWindowBorderResizing@martinandersen3d`
+![alt text](media/install-location.png)
+
+#### STEP 3: System Settings → Extensions
+1. Open **System Settings → Extensions** and click `Snappy Window Tiling`
+2. Click the `+` plus. The `✔️` checkmark should appear.
+![alt text](../media/extension-settings.png)
+
 
 ---
 
