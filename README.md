@@ -50,11 +50,16 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 ### Manual Installation
 #### STEP 1:  Paste this into your terminal:
 ```bash
-curl -L https://github.com/USERNAME/REPO/archive/refs/heads/main.zip -o /tmp/ext-swb.zip \
-  && unzip /tmp/ext-swb.zip "REPO-main/SnappyWindowBorderResizing@martinandersen/files/SnappyWindowBorderResizing@martinandersen/*" -d /tmp/ext-swb \
-  && mv "/tmp/ext-swb/REPO-main/SnappyWindowBorderResizing@martinandersen/files/SnappyWindowBorderResizing@martinandersen" \
-        ~/.local/share/cinnamon/extensions/
+curl -L https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling/archive/refs/heads/master.zip -o /tmp/ext-swb.zip \
+  && unzip /tmp/ext-swb.zip "LinuxMintWindowSnapZoneTiling-master/snappy-window-tiling@martinandersen3d/files/snappy-window-tiling@martinandersen3d/*" -d /tmp/ext-swb \
+  && mv "/tmp/ext-swb/LinuxMintWindowSnapZoneTiling-master/snappy-window-tiling@martinandersen3d/files/snappy-window-tiling@martinandersen3d" \
+        ~/.local/share/cinnamon/extensions/ \
+  && ls ~/.local/share/cinnamon/extensions/snappy-window-tiling@martinandersen3d \
+  && echo "-----------------------------------------" \
+  && echo "[SUCCES] Installation successful!" || echo "[FAILED] Installation failed — files not found."
 ```
+
+https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling
 
 #### STEP 2: Check files is installed at the correct location:
 - `~/.local/share/cinnamon/extensions/snappy-window-tiling@martinandersen3d`
