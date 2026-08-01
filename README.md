@@ -95,3 +95,39 @@ You can easily change the shortcut key used to trigger the overlay:
 ---
 
 # Video
+
+### Intro:
+
+<video src="https://github.com/user-attachments/assets/e2b41e14-1913-4e71-a6f9-a2d0c9555e4b" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+### Hold `SHIFT` while you mouse drag to Multi-Select:
+<video src="https://github.com/user-attachments/assets/f112f0b4-b67c-4063-8df2-08797c61ba3c" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+### Hotkey Win+z to Activate and use keyboard Digits to Navigate:
+<video src="https://github.com/user-attachments/assets/c90b9a84-17af-4a46-bcfc-4dd377a599e9" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+### Hotkey Win+z to Activate and use keyboard Arrows to Navigate:
+<video src="https://github.com/user-attachments/assets/f2a2ab83-7ba6-4729-9da3-96bb84b92414" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
