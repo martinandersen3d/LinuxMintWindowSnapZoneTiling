@@ -1,5 +1,4 @@
-🚀 Snappy Window Tiling 🧲
-For Linux Mint:
+🚀 Snappy Window Tiling - For Linux Mint
 
 Hi please:
 - 1. Install it
@@ -9,10 +8,9 @@ Hi please:
 Link to installation:
 https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling
 
-
 ---
 
-Please give feedback in in google sheets, the link is in the bottom of the page. Or answer here:
+Please give feedback in in google form, the link is in the bottom of the page. Or answer here:
 
 1. How did the Installation go?
 
