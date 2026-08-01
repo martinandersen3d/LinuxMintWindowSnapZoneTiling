@@ -55,7 +55,6 @@ curl -L https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling/archiv
   && mv "/tmp/ext-swb/LinuxMintWindowSnapZoneTiling-master/snappy-window-tiling@martinandersen3d/files/snappy-window-tiling@martinandersen3d" \
         ~/.local/share/cinnamon/extensions/ \
   && ls ~/.local/share/cinnamon/extensions/snappy-window-tiling@martinandersen3d \
-  && echo "-----------------------------------------" \
   && echo "[SUCCES] Installation successful!" || echo "[FAILED] Installation failed — files not found."
 ```
 
