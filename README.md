@@ -58,8 +58,6 @@ curl -L https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling/archiv
   && echo "[SUCCES] Installation successful!" || echo "[FAILED] Installation failed — files not found."
 ```
 
-https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling
-
 #### STEP 2: Check files is installed at the correct location:
 - `~/.local/share/cinnamon/extensions/snappy-window-tiling@martinandersen3d`
 ![alt text](media/install-location.png)
