@@ -5,7 +5,7 @@
     - 2. A few Zones is selected (Ctrl/Shift still pressed)
     - 3. mouse is moved outside the panel
     - 4. Try release the shift/ctrl while dragging outside panel, then press shift/ctrl again.
-    - 5. The selected zones is stuck. This is a bug. When the mouse leaves the panel, nothing shuld be selected
+    - 5. The selected zones is stuck. This is a bug. When the mouse leaves the panel, nothing should be selected
 - Feature:
     - Settings:
         - Be able to select what presets you want to see
