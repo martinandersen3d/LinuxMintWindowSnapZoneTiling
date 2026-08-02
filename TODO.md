@@ -7,7 +7,9 @@
         - 2. Hold the mouse down and extand the zone to a adjacent zone, without modifier keys.
         - See ref: https://www.reddit.com/r/unixporn/comments/1t5woya/cinnamon_cyberpunk_aesthetic_on_linux_mint/
 - Edge Gap: In settings, there should be a Window Padding / border distance,  setting, that will set how many pixels from the edge there should be a gap.
+
 # TODO - BuG
+- Title Click Protection: Clicking on a title, the popup panel will show up. The popup panel should first be shown when it has been moved more than 5 pixels.
 - Bug: Use CTRL instad of SHIFT - The Shift key tries to snap the window (Cinnamon default feature)
 - Bug:
     - 1. CTRL / Shift is pressed down
