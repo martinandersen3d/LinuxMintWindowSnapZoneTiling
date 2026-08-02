@@ -1,5 +1,5 @@
 # TODO
-- Bug: Use CTRL instad of SHIFT - The Shift key tries to snap the window
+- Bug: Use CTRL instad of SHIFT - The Shift key tries to snap the window (Cinnamon default feature)
 - Bug:
     - 1. CTRL / Shift is pressed down
     - 2. A few Zones is selected (Ctrl/Shift still pressed)
