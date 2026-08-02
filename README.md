@@ -122,7 +122,10 @@ You can easily change the shortcut key used to trigger the overlay:
 
 
 
+# Give Feedback
+- Please fill out the Google Form:
 
+[Google Form](https://docs.google.com/forms/d/e/1FAIpQLSe1l6zMp43RCTdPos1klIzashABJXVLgVJUtCyhia7ddoa9RQ/viewform?usp=header)
 
 
 
