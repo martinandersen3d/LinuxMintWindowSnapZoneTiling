@@ -83,6 +83,30 @@ function getHotkey() {
     }
 }
 
+function getOuterScreenPadding() {
+    try {
+        return _settings ? _settings.getValue("outer-screen-padding") : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+function getInnerWindowPadding() {
+    try {
+        return _settings ? _settings.getValue("inner-window-padding") : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+function isLayoutEnabled(key) {
+    try {
+        return _settings ? _settings.getValue(key) : true;
+    } catch (e) {
+        return true;
+    }
+}
+
 /**
  * Connect a callback to a settings key change.
  * @param {string} key - settings key name

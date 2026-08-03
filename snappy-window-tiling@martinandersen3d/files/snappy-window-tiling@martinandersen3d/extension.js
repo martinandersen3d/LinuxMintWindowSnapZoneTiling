@@ -165,54 +165,133 @@ function getMonitorAtPointer() {
     }
 }
 
-const LAYOUT_GROUPS = [
-    [
-        { name: "Left",  x: 0.0, y: 0.0, w: 0.5, h: 1.0 },
-        { name: "Right", x: 0.5, y: 0.0, w: 0.5, h: 1.0 }
-    ],
-    createEqualVerticalLayout(3),
-    [
-        { name: "Top Left",     x: 0.0, y: 0.0, w: 0.5, h: 0.5 },
-        { name: "Top Right",    x: 0.5, y: 0.0, w: 0.5, h: 0.5 },
-        { name: "Bottom Left",  x: 0.0, y: 0.5, w: 0.5, h: 0.5 },
-        { name: "Bottom Right", x: 0.5, y: 0.5, w: 0.5, h: 0.5 }
-    ],
-    [
-        { name: "Wide Left",   x: 0.0,  y: 0.0, w: 0.75, h: 1.0 },
-        { name: "Narrow Right",x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
-    ],
-    [
-        { name: "Left",   x: 0.0,  y: 0.0, w: 0.25, h: 1.0 },
-        { name: "Center", x: 0.25, y: 0.0, w: 0.50, h: 1.0 },
-        { name: "Right",  x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
-    ],
-    [
-        { name: "Narrow Left", x: 0.0,  y: 0.0, w: 0.25, h: 1.0 },
-        { name: "Wide Right",  x: 0.25, y: 0.0, w: 0.75, h: 1.0 }
-    ],
-    [
-        { name: "Wide Left",   x: 0.0,  y: 0.0, w: 0.80, h: 1.0 },
-        { name: "Narrow Right",x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
-    ],
-    [
-        { name: "Left",   x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
-        { name: "Center", x: 0.20, y: 0.0, w: 0.60, h: 1.0 },
-        { name: "Right",  x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
-    ],
-    [
-        { name: "Narrow Left", x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
-        { name: "Wide Right",  x: 0.20, y: 0.0, w: 0.80, h: 1.0 }
-    ],
-    createEqualVerticalLayout(4),
-    createEqualVerticalLayout(5),
-    createEqualVerticalLayout(6),
-    createSplitVerticalLayout(4),
-    createSplitVerticalLayout(5),
-    createSplitVerticalLayout(6),
-    createGrid3x3Layout(),
-    createGrid4x4Layout(),
-    createGrid5x4Layout()
+const LAYOUT_GROUP_DEFS = [
+    {
+        key: "layout-half-split-vertical",
+        label: "Half Split (Vertical)",
+        zones: [
+            { name: "Left",  x: 0.0, y: 0.0, w: 0.5, h: 1.0 },
+            { name: "Right", x: 0.5, y: 0.0, w: 0.5, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-3-column-equal",
+        label: "3 Column (Equal)",
+        zones: createEqualVerticalLayout(3)
+    },
+    {
+        key: "layout-2x2-grid",
+        label: "2x2 Grid",
+        zones: [
+            { name: "Top Left",     x: 0.0, y: 0.0, w: 0.5, h: 0.5 },
+            { name: "Top Right",    x: 0.5, y: 0.0, w: 0.5, h: 0.5 },
+            { name: "Bottom Left",  x: 0.0, y: 0.5, w: 0.5, h: 0.5 },
+            { name: "Bottom Right", x: 0.5, y: 0.5, w: 0.5, h: 0.5 }
+        ]
+    },
+    {
+        key: "layout-golden-ratio-left",
+        label: "Golden Ratio (Left)",
+        zones: [
+            { name: "Wide Left",    x: 0.0,  y: 0.0, w: 0.75, h: 1.0 },
+            { name: "Narrow Right", x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-3-column-wide-center",
+        label: "3 Column (Wide Center)",
+        zones: [
+            { name: "Left",   x: 0.0,  y: 0.0, w: 0.25, h: 1.0 },
+            { name: "Center", x: 0.25, y: 0.0, w: 0.50, h: 1.0 },
+            { name: "Right",  x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-golden-ratio-right",
+        label: "Golden Ratio (Right)",
+        zones: [
+            { name: "Narrow Left", x: 0.0,  y: 0.0, w: 0.25, h: 1.0 },
+            { name: "Wide Right",  x: 0.25, y: 0.0, w: 0.75, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-focus-left",
+        label: "Focus Left (80/20)",
+        zones: [
+            { name: "Wide Left",    x: 0.0,  y: 0.0, w: 0.80, h: 1.0 },
+            { name: "Narrow Right", x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-3-column-focus-center",
+        label: "3 Column (Focus Center)",
+        zones: [
+            { name: "Left",   x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
+            { name: "Center", x: 0.20, y: 0.0, w: 0.60, h: 1.0 },
+            { name: "Right",  x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-focus-right",
+        label: "Focus Right (80/20)",
+        zones: [
+            { name: "Narrow Left", x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
+            { name: "Wide Right",  x: 0.20, y: 0.0, w: 0.80, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-4-column-equal",
+        label: "4 Column (Equal)",
+        zones: createEqualVerticalLayout(4)
+    },
+    {
+        key: "layout-5-column-equal",
+        label: "5 Column (Equal)",
+        zones: createEqualVerticalLayout(5)
+    },
+    {
+        key: "layout-6-column-equal",
+        label: "6 Column (Equal)",
+        zones: createEqualVerticalLayout(6)
+    },
+    {
+        key: "layout-4-column-split",
+        label: "4 Column (Split)",
+        zones: createSplitVerticalLayout(4)
+    },
+    {
+        key: "layout-5-column-split",
+        label: "5 Column (Split)",
+        zones: createSplitVerticalLayout(5)
+    },
+    {
+        key: "layout-6-column-split",
+        label: "6 Column (Split)",
+        zones: createSplitVerticalLayout(6)
+    },
+    {
+        key: "layout-3x3-grid",
+        label: "3x3 Grid",
+        zones: createGrid3x3Layout()
+    },
+    {
+        key: "layout-4x4-grid",
+        label: "4x4 Grid",
+        zones: createGrid4x4Layout()
+    },
+    {
+        key: "layout-5x4-grid",
+        label: "5x4 Grid (Ultra Wide)",
+        zones: createGrid5x4Layout()
+    }
 ];
+
+function getActiveLayoutGroups() {
+    if (!SettingsManager) return LAYOUT_GROUP_DEFS.map(d => d.zones);
+    return LAYOUT_GROUP_DEFS
+        .filter(def => SettingsManager.isLayoutEnabled(def.key))
+        .map(def => def.zones);
+}
 
 function init(metadata) {
     try {
@@ -259,6 +338,12 @@ function enable() {
         SettingsManager.connectChanged("toggle-snappy-window-tiling", refreshHotkey);
         SettingsManager.connectChanged("enable-keyboard-snapping", refreshHotkey);
 
+        // Rebuild the overlay UI whenever a layout preset is toggled.
+        function rebuildOverlay() { destroyOverlayUI(); }
+        LAYOUT_GROUP_DEFS.forEach(def => {
+            SettingsManager.connectChanged(def.key, rebuildOverlay);
+        });
+
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
         SettingsManager.log("enable() done  grabBeginId=" + grabBeginId + "  grabEndId=" + grabEndId);
@@ -295,7 +380,8 @@ function buildOverlayUIOnce() {
     try {
         if (overlayContainer) return;
 
-        const groupRows = Math.ceil(LAYOUT_GROUPS.length / GROUP_GRID_COLS);
+        const activeLayouts = getActiveLayoutGroups();
+        const groupRows = Math.ceil(activeLayouts.length / GROUP_GRID_COLS);
         const cardWidth = 140;
         const cardHeight = 85;
         const gap = 10;
@@ -322,7 +408,7 @@ function buildOverlayUIOnce() {
 
         const gridOffsetY = padding;
 
-        LAYOUT_GROUPS.forEach((layout, groupIdx) => {
+        activeLayouts.forEach((layout, groupIdx) => {
             let col = groupIdx % GROUP_GRID_COLS;
             let row = Math.floor(groupIdx / GROUP_GRID_COLS);
 
@@ -801,7 +887,7 @@ function updateSelectedZones(newIndices) {
 function moveGroupFocus(dx, dy) {
     try {
         let newIdx = focusedGroupIdx;
-        let total = LAYOUT_GROUPS.length;
+        let total = groupCards.length;
 
         if (dx !== 0) {
             let currentRow = Math.floor(focusedGroupIdx / GROUP_GRID_COLS);
@@ -948,7 +1034,7 @@ function onKeyPress(actor, event) {
             }
         }
 
-        const totalGroups = LAYOUT_GROUPS.length;
+        const totalGroups = groupCards.length;
         const isArrowKey = (symbol === Clutter.KEY_Left || symbol === Clutter.KEY_Right ||
                             symbol === Clutter.KEY_Up || symbol === Clutter.KEY_Down);
 
@@ -1308,6 +1394,23 @@ function snapWindowToSelectedZones(window, indices) {
         let targetY = Math.floor(workArea.y + (minY * workArea.height));
         let targetW = Math.floor((maxX - minX) * workArea.width);
         let targetH = Math.floor((maxY - minY) * workArea.height);
+
+        // Apply outer/inner padding. Edges flush with the screen boundary
+        // (normalized coord within EDGE_EPSILON of 0 or 1) get outerPad;
+        // internal edges get half of innerPad so adjacent windows share the gap.
+        const EDGE_EPSILON = 0.001;
+        let outerPad = SettingsManager.getOuterScreenPadding();
+        let innerHalf = Math.round(SettingsManager.getInnerWindowPadding() / 2);
+
+        let padLeft   = (minX < EDGE_EPSILON)      ? outerPad : innerHalf;
+        let padTop    = (minY < EDGE_EPSILON)      ? outerPad : innerHalf;
+        let padRight  = (maxX > 1 - EDGE_EPSILON)  ? outerPad : innerHalf;
+        let padBottom = (maxY > 1 - EDGE_EPSILON)  ? outerPad : innerHalf;
+
+        targetX += padLeft;
+        targetY += padTop;
+        targetW -= (padLeft + padRight);
+        targetH -= (padTop  + padBottom);
 
         if (window.get_maximized()) {
             window.unmaximize(Meta.MaximizeFlags.BOTH);

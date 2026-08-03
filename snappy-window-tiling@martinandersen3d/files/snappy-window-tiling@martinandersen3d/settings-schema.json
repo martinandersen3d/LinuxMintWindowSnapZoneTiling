@@ -5,12 +5,41 @@
         "main": {
             "type": "page",
             "title": "Snappy Window Tiling",
-            "sections": ["features-section", "shortcuts-section"]
+            "sections": ["features-section", "padding-section", "layout-presets-section", "shortcuts-section"]
         },
         "features-section": {
             "type": "section",
             "title": "Features",
             "keys": ["enable-drag-snapping", "enable-keyboard-snapping"]
+        },
+        "padding-section": {
+            "type": "section",
+            "title": "Window Padding",
+            "keys": ["outer-screen-padding", "inner-window-padding"]
+        },
+        "layout-presets-section": {
+            "type": "section",
+            "title": "Layout Presets",
+            "keys": [
+                "layout-half-split-vertical",
+                "layout-3-column-equal",
+                "layout-2x2-grid",
+                "layout-golden-ratio-left",
+                "layout-3-column-wide-center",
+                "layout-golden-ratio-right",
+                "layout-focus-left",
+                "layout-3-column-focus-center",
+                "layout-focus-right",
+                "layout-4-column-equal",
+                "layout-5-column-equal",
+                "layout-6-column-equal",
+                "layout-4-column-split",
+                "layout-5-column-split",
+                "layout-6-column-split",
+                "layout-3x3-grid",
+                "layout-4x4-grid",
+                "layout-5x4-grid"
+            ]
         },
         "shortcuts-section": {
             "type": "section",
@@ -28,9 +57,117 @@
         "description": "Enable keyboard hotkey to open the zone overlay",
         "default": true
     },
+    "outer-screen-padding": {
+        "type": "spinbutton",
+        "description": "Outer Screen Padding (gap between window and screen edge)",
+        "default": 0,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "units": "px"
+    },
+    "inner-window-padding": {
+        "type": "spinbutton",
+        "description": "Inner Window Padding (gap between adjacent tiled windows)",
+        "default": 0,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "units": "px"
+    },
     "toggle-snappy-window-tiling": {
         "type": "keybinding",
         "description": "Hotkey to open Snappy Window Tiling",
         "default": "<Super>z"
+    },
+    "layout-half-split-vertical": {
+        "type": "switch",
+        "description": "Half Split (Vertical)",
+        "default": true
+    },
+    "layout-3-column-equal": {
+        "type": "switch",
+        "description": "3 Column (Equal)",
+        "default": true
+    },
+    "layout-2x2-grid": {
+        "type": "switch",
+        "description": "2x2 Grid",
+        "default": true
+    },
+    "layout-golden-ratio-left": {
+        "type": "switch",
+        "description": "Golden Ratio (Left)",
+        "default": true
+    },
+    "layout-3-column-wide-center": {
+        "type": "switch",
+        "description": "3 Column (Wide Center)",
+        "default": true
+    },
+    "layout-golden-ratio-right": {
+        "type": "switch",
+        "description": "Golden Ratio (Right)",
+        "default": true
+    },
+    "layout-focus-left": {
+        "type": "switch",
+        "description": "Focus Left (80/20)",
+        "default": true
+    },
+    "layout-3-column-focus-center": {
+        "type": "switch",
+        "description": "3 Column (Focus Center)",
+        "default": true
+    },
+    "layout-focus-right": {
+        "type": "switch",
+        "description": "Focus Right (80/20)",
+        "default": true
+    },
+    "layout-4-column-equal": {
+        "type": "switch",
+        "description": "4 Column (Equal)",
+        "default": true
+    },
+    "layout-5-column-equal": {
+        "type": "switch",
+        "description": "5 Column (Equal)",
+        "default": true
+    },
+    "layout-6-column-equal": {
+        "type": "switch",
+        "description": "6 Column (Equal)",
+        "default": true
+    },
+    "layout-4-column-split": {
+        "type": "switch",
+        "description": "4 Column (Split)",
+        "default": true
+    },
+    "layout-5-column-split": {
+        "type": "switch",
+        "description": "5 Column (Split)",
+        "default": true
+    },
+    "layout-6-column-split": {
+        "type": "switch",
+        "description": "6 Column (Split)",
+        "default": true
+    },
+    "layout-3x3-grid": {
+        "type": "switch",
+        "description": "3x3 Grid",
+        "default": true
+    },
+    "layout-4x4-grid": {
+        "type": "switch",
+        "description": "4x4 Grid",
+        "default": true
+    },
+    "layout-5x4-grid": {
+        "type": "switch",
+        "description": "5x4 Grid (Ultra Wide)",
+        "default": true
     }
 }

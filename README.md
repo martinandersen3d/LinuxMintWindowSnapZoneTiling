@@ -21,12 +21,14 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
   * Use arrow keys or number keys.
   * **Multi-Zone Selection:** Hold `Ctrl` to span windows across multiple adjacent grid cells simultaneously.
 * **Multi-Monitor Ready:** Automatically detects pointer location to display overlay and target grids on the active monitor.
+* **Window Padding:** Configure outer screen padding (gap from screen edges) and inner window padding (gap between adjacent tiled windows) — both default to 0.
+* **Layout Presets:** Choose which of the 18 built-in layouts appear in the overlay. Toggle any preset on or off in Settings — changes take effect immediately.
 ---
 
 ## Usage
 
 ### 🖱️ Mouse-Drag Mode
-1. Drag any window titlebar.)
+1. Drag any window titlebar.
 2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
 3. *(Optional)* Hold `Ctrl` while hovering to select multiple zones simultaneously.
 
@@ -73,6 +75,8 @@ curl -L https://github.com/martinandersen3d/LinuxMintWindowSnapZoneTiling/archiv
 
 ---
 
+# Settings
+
 ## ⚙️ How to Customize the Hotkey
 
 You can easily change the shortcut key used to trigger the overlay:
@@ -89,6 +93,38 @@ You can easily change the shortcut key used to trigger the overlay:
 | :--- | :---: | :--- |
 | **Enable drag-to-snap** | ✅ On | Show the zone overlay when dragging a window by its titlebar. Disable this if you only want keyboard-based snapping. |
 | **Enable keyboard hotkey** | ✅ On | Register the global hotkey that opens the overlay for the focused window. Disable this if you only want drag-to-snap. |
+
+### Window Padding
+
+| Setting | Default | Description |
+| :--- | :---: | :--- |
+| **Outer Screen Padding** | `0 px` | Gap between the window and the screen edge (applies to all 4 sides). |
+| **Inner Window Padding** | `0 px` | Gap between two adjacent tiled windows. Each window contributes half, so the total gap equals this value. |
+
+### Layout Presets
+
+Toggle each layout on or off. The overlay rebuilds automatically when you save — no restart needed.
+
+| Preset | Default | Description |
+| :--- | :---: | :--- |
+| **Half Split (Vertical)** | ✅ On | Left / Right equal halves |
+| **3 Column (Equal)** | ✅ On | Three equal vertical columns |
+| **2x2 Grid** | ✅ On | Four equal quadrants |
+| **Golden Ratio (Left)** | ✅ On | 75 % left + 25 % right |
+| **3 Column (Wide Center)** | ✅ On | 25 % – 50 % – 25 % |
+| **Golden Ratio (Right)** | ✅ On | 25 % left + 75 % right |
+| **Focus Left (80/20)** | ✅ On | 80 % left + 20 % right |
+| **3 Column (Focus Center)** | ✅ On | 20 % – 60 % – 20 % |
+| **Focus Right (80/20)** | ✅ On | 20 % left + 80 % right |
+| **4 Column (Equal)** | ✅ On | Four equal vertical columns |
+| **5 Column (Equal)** | ✅ On | Five equal vertical columns |
+| **6 Column (Equal)** | ✅ On | Six equal vertical columns |
+| **4 Column (Split)** | ✅ On | 4 columns, each split into top & bottom |
+| **5 Column (Split)** | ✅ On | 5 columns, each split into top & bottom |
+| **6 Column (Split)** | ✅ On | 6 columns, each split into top & bottom |
+| **3x3 Grid** | ✅ On | 9-zone grid |
+| **4x4 Grid** | ✅ On | 16-zone grid |
+| **5x4 Grid (Ultra Wide)** | ✅ On | 20-zone grid for ultra-wide monitors |
 
 ### Keyboard Shortcuts
 
