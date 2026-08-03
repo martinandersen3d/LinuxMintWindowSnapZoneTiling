@@ -38,6 +38,11 @@ let lastMouseX = -1;
 let lastMouseY = -1;
 let lastCtrlState = false;
 
+const DRAG_SHOW_THRESHOLD = 5;
+let pendingDragShow = false;
+let dragStartX = -1;
+let dragStartY = -1;
+
 let extensionUuid = "";
 
 function createEqualVerticalLayout(count) {
@@ -621,7 +626,10 @@ function onGrabBegin(display, screen, window, op) {
             }
 
             isHotkeyActivated = false;
-            showOverlay();
+            let [sx, sy] = global.get_pointer().slice(0, 2);
+            dragStartX = sx;
+            dragStartY = sy;
+            pendingDragShow = true;
             startMouseTracking();
         }
     } catch (e) {
@@ -632,6 +640,9 @@ function onGrabBegin(display, screen, window, op) {
 function onGrabEnd(display, screen, window, op) {
     try {
         stopMouseTracking();
+        pendingDragShow = false;
+        dragStartX = -1;
+        dragStartY = -1;
 
         if (activeWindow && selectedZoneIndices.length > 0) {
             snapWindowToSelectedZones(activeWindow, selectedZoneIndices);
@@ -1051,6 +1062,16 @@ function startMouseTracking() {
         mouseTrackingTimer = Mainloop.timeout_add(40, () => {
             let [mouseX, mouseY, mods] = global.get_pointer();
             let isCtrlPressed = (mods & Clutter.ModifierType.CONTROL_MASK) !== 0;
+
+            if (pendingDragShow) {
+                let dx = mouseX - dragStartX;
+                let dy = mouseY - dragStartY;
+                if ((dx * dx + dy * dy) >= (DRAG_SHOW_THRESHOLD * DRAG_SHOW_THRESHOLD)) {
+                    pendingDragShow = false;
+                    showOverlay();
+                }
+                return true;
+            }
 
             if (mouseX === lastMouseX && mouseY === lastMouseY && isCtrlPressed === lastCtrlState) {
                 return true;
