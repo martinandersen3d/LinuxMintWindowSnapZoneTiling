@@ -33,6 +33,8 @@ let focusedGroupIdx = 0;    // Arrow-key focus cursor while in Step 1
 let focusedTileInGroup = 0; // Arrow-key focus cursor while in Step 2
 let keyEventId = 0;
 let mouseButtonEventId = 0;
+let mouseButtonReleaseEventId = 0;
+let isPressHeld = false;
 
 let lastMouseX = -1;
 let lastMouseY = -1;
@@ -557,6 +559,12 @@ function hideOverlay() {
                 mouseButtonEventId = 0;
             }
 
+            if (mouseButtonReleaseEventId > 0) {
+                global.stage.disconnect(mouseButtonReleaseEventId);
+                mouseButtonReleaseEventId = 0;
+            }
+            isPressHeld = false;
+
             stopMouseTracking();
 
             global.stage.set_key_focus(null);
@@ -1020,10 +1028,8 @@ function confirmKeyboardSnap() {
 }
 
 /**
- * Handles mouse clicks while the hotkey-activated overlay is open, letting
- * the user click a zone (optionally holding Ctrl for a multi-tile range,
- * same as hovering) to snap the captured window and close the overlay.
- * Not used for the drag-to-snap path, which confirms on grab-op-end instead.
+ * Handles mouse button press in hotkey mode: anchors the initial zone and
+ * enters press-hold expand mode. Snap happens on release.
  */
 function onButtonPress(actor, event) {
     try {
@@ -1031,12 +1037,34 @@ function onButtonPress(actor, event) {
         if (event.get_button() !== 1) return false;
 
         let [mx, my] = event.get_coords();
-        let mods = event.get_state();
-        let isCtrlPressed = (mods & Clutter.ModifierType.CONTROL_MASK) !== 0;
+        // Anchor the press position as a single-zone selection.
+        updateZoneHover(mx, my, false);
 
-        // Make sure hover state reflects the exact click position before
-        // reading selectedZoneIndices.
-        updateZoneHover(mx, my, isCtrlPressed);
+        if (selectedZoneIndices.length > 0) {
+            isPressHeld = true;
+            if (mouseButtonReleaseEventId === 0) {
+                mouseButtonReleaseEventId = global.stage.connect('button-release-event', onButtonRelease);
+            }
+        }
+
+        return true;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in onButtonPress: " + e.message);
+        return false;
+    }
+}
+
+function onButtonRelease(actor, event) {
+    try {
+        if (!isHotkeyActivated) return false;
+        if (event.get_button() !== 1) return false;
+
+        isPressHeld = false;
+
+        if (mouseButtonReleaseEventId > 0) {
+            global.stage.disconnect(mouseButtonReleaseEventId);
+            mouseButtonReleaseEventId = 0;
+        }
 
         if (selectedZoneIndices.length > 0) {
             if (activeWindow) {
@@ -1048,7 +1076,7 @@ function onButtonPress(actor, event) {
 
         return false;
     } catch (e) {
-        global.logError("[drag-overlay] Error in onButtonPress: " + e.message);
+        global.logError("[drag-overlay] Error in onButtonRelease: " + e.message);
         return false;
     }
 }
@@ -1081,7 +1109,7 @@ function startMouseTracking() {
             lastMouseY = mouseY;
             lastCtrlState = isCtrlPressed;
 
-            updateZoneHover(mouseX, mouseY, isCtrlPressed);
+            updateZoneHover(mouseX, mouseY, isCtrlPressed || isPressHeld);
             return true;
         });
     } catch (e) {
@@ -1120,9 +1148,15 @@ function updateZoneHover(mx, my, isCtrlPressed) {
 
         if (isCtrlPressed) {
             if (hoveredIndex === -1) {
-                // Mouse left the panel — reset multi-select so zones don't stay stuck
-                initialZoneIndex = -1;
-                activeZoneIndex = -1;
+                if (isPressHeld) {
+                    // Mouse left panel during press-hold: preserve the press anchor so
+                    // rectangle selection resumes correctly when mouse re-enters.
+                    // newSelectedIndices stays empty, clearing the visual highlight.
+                } else {
+                    // Ctrl multi-select: reset anchor so zones don't stay stuck.
+                    initialZoneIndex = -1;
+                    activeZoneIndex = -1;
+                }
             } else {
                 if (initialZoneIndex < 0) {
                     initialZoneIndex = activeZoneIndex >= 0 ? activeZoneIndex : hoveredIndex;

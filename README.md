@@ -13,8 +13,9 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 * **Grid & Split Layouts:** Choose from classic half-splits, 3-column layouts, 3x3 grids, 4x4 grids, ultra-wide 5x4 grids, and equal vertical columns.
 
 * **Mouse Drag Snap:** 
-  * Hold/drag your window to view visual snap zones dynamically.
-  * **Multi-Zone Selection:** Hold `Ctrl` to span windows across multiple adjacent grid cells simultaneously.
+  * Drag your window titlebar
+  * **Multi-Zone Selection:** Hold `Ctrl` while hovering to span windows across multiple adjacent grid cells simultaneously.
+* **Press-and-Hold Zone Expansion:** When the overlay is open (hotkey mode), press and hold the mouse button on a zone, then drag to an adjacent zone to expand the selection — no modifier key required.
 * **Keyboard:** 
   * Open with keyboard  `Win+z` / `Super+z` 
   * Use arrow keys or number keys.
@@ -25,7 +26,7 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 ## Usage
 
 ### 🖱️ Mouse-Drag Mode
-1. Drag any window titlebar.
+1. Drag any window titlebar.)
 2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
 3. *(Optional)* Hold `Ctrl` while hovering to select multiple zones simultaneously.
 
@@ -34,7 +35,8 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 2. **Step 1:** Select a **Layout Group** using digits `1`–`9` (or `0` for 10th), or navigate with **Arrow Keys** and press `Enter`.
 3. **Step 2:** Select a target **Zone Tile** using digit keys or arrow keys.
 4. *(Optional)* Hold `Ctrl` while moving arrow keys to select a region spanning multiple tiles. (Hold `Ctrl` down, while you press `Enter` to complete)
-5. Press `Enter` to snap!
+5. *(Optional)* **Press-and-Hold:** Click and hold the mouse button on a zone, then drag to an adjacent zone to expand the selection — no `Ctrl` key needed. Release to snap.
+6. Press `Enter` to snap!
 
 
 ---
