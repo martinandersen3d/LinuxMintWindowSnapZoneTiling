@@ -36,7 +36,7 @@ let mouseButtonEventId = 0;
 
 let lastMouseX = -1;
 let lastMouseY = -1;
-let lastShiftState = false;
+let lastCtrlState = false;
 
 let extensionUuid = "";
 
@@ -424,7 +424,7 @@ function buildOverlayUIOnce() {
         });
 
         let optionalLine = new St.Label({
-            text: "(Optional) Hold Shift to expand selection.",
+            text: "(Optional) Hold Ctrl to expand selection.",
             style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
         });
 
@@ -711,12 +711,12 @@ function renderKeyboardUI() {
     }
 }
 
-function updateKeyboardTileSelection(isShiftPressed) {
+function updateKeyboardTileSelection(isCtrlPressed) {
     try {
         let card = groupCards[selectedGroupIdx];
         let activeGlobalIdx = card.zoneIndices[focusedTileInGroup];
 
-        if (isShiftPressed) {
+        if (isCtrlPressed) {
             if (initialZoneIndex < 0) {
                 initialZoneIndex = activeGlobalIdx;
             }
@@ -862,17 +862,17 @@ function findSpatialNeighbor(currentLocalIdx, zoneIndices, dx, dy) {
 
 /**
  * Moves the Step 2 tile focus cursor within the currently selected group.
- * When isShiftPressed is true, the selection is expanded (range-select)
+ * When isCtrlPressed is true, the selection is expanded (range-select)
  * instead of moved.
  */
-function moveTileFocus(dx, dy, isShiftPressed) {
+function moveTileFocus(dx, dy, isCtrlPressed) {
     try {
         let card = groupCards[selectedGroupIdx];
         let newLocalIdx = findSpatialNeighbor(focusedTileInGroup, card.zoneIndices, dx, dy);
 
         if (newLocalIdx !== -1) {
             focusedTileInGroup = newLocalIdx;
-            updateKeyboardTileSelection(isShiftPressed);
+            updateKeyboardTileSelection(isCtrlPressed);
         }
     } catch (e) {
         global.logError("[drag-overlay] Error in moveTileFocus: " + e.message);
@@ -902,7 +902,7 @@ function onKeyPress(actor, event) {
     try {
         let symbol = event.get_key_symbol();
         let state = event.get_state();
-        let isShiftPressed = (state & Clutter.ModifierType.SHIFT_MASK) !== 0;
+        let isCtrlPressed = (state & Clutter.ModifierType.CONTROL_MASK) !== 0;
 
         if (symbol === Clutter.KEY_Escape) {
             if (navStep === 2) {
@@ -970,7 +970,7 @@ function onKeyPress(actor, event) {
             if (isArrowKey) {
                 let dx = (symbol === Clutter.KEY_Left) ? -1 : (symbol === Clutter.KEY_Right) ? 1 : 0;
                 let dy = (symbol === Clutter.KEY_Up) ? -1 : (symbol === Clutter.KEY_Down) ? 1 : 0;
-                moveTileFocus(dx, dy, isShiftPressed);
+                moveTileFocus(dx, dy, isCtrlPressed);
                 return true;
             }
 
@@ -978,8 +978,8 @@ function onKeyPress(actor, event) {
             if (targetTileIdx !== -1) {
                 if (targetTileIdx < tileCount) {
                     focusedTileInGroup = targetTileIdx;
-                    updateKeyboardTileSelection(isShiftPressed);
-                    if (!isShiftPressed) {
+                    updateKeyboardTileSelection(isCtrlPressed);
+                    if (!isCtrlPressed) {
                         confirmKeyboardSnap();
                     }
                 }
@@ -1010,7 +1010,7 @@ function confirmKeyboardSnap() {
 
 /**
  * Handles mouse clicks while the hotkey-activated overlay is open, letting
- * the user click a zone (optionally holding Shift for a multi-tile range,
+ * the user click a zone (optionally holding Ctrl for a multi-tile range,
  * same as hovering) to snap the captured window and close the overlay.
  * Not used for the drag-to-snap path, which confirms on grab-op-end instead.
  */
@@ -1021,11 +1021,11 @@ function onButtonPress(actor, event) {
 
         let [mx, my] = event.get_coords();
         let mods = event.get_state();
-        let isShiftPressed = (mods & Clutter.ModifierType.SHIFT_MASK) !== 0;
+        let isCtrlPressed = (mods & Clutter.ModifierType.CONTROL_MASK) !== 0;
 
         // Make sure hover state reflects the exact click position before
         // reading selectedZoneIndices.
-        updateZoneHover(mx, my, isShiftPressed);
+        updateZoneHover(mx, my, isCtrlPressed);
 
         if (selectedZoneIndices.length > 0) {
             if (activeWindow) {
@@ -1050,17 +1050,17 @@ function startMouseTracking() {
 
         mouseTrackingTimer = Mainloop.timeout_add(40, () => {
             let [mouseX, mouseY, mods] = global.get_pointer();
-            let isShiftPressed = (mods & Clutter.ModifierType.SHIFT_MASK) !== 0;
+            let isCtrlPressed = (mods & Clutter.ModifierType.CONTROL_MASK) !== 0;
 
-            if (mouseX === lastMouseX && mouseY === lastMouseY && isShiftPressed === lastShiftState) {
+            if (mouseX === lastMouseX && mouseY === lastMouseY && isCtrlPressed === lastCtrlState) {
                 return true;
             }
 
             lastMouseX = mouseX;
             lastMouseY = mouseY;
-            lastShiftState = isShiftPressed;
+            lastCtrlState = isCtrlPressed;
 
-            updateZoneHover(mouseX, mouseY, isShiftPressed);
+            updateZoneHover(mouseX, mouseY, isCtrlPressed);
             return true;
         });
     } catch (e) {
@@ -1079,7 +1079,7 @@ function stopMouseTracking() {
     }
 }
 
-function updateZoneHover(mx, my, isShiftPressed) {
+function updateZoneHover(mx, my, isCtrlPressed) {
     try {
         let hoveredIndex = -1;
 
@@ -1097,32 +1097,38 @@ function updateZoneHover(mx, my, isShiftPressed) {
             activeZoneIndex = hoveredIndex;
         }
 
-        if (isShiftPressed) {
-            if (initialZoneIndex < 0) {
-                initialZoneIndex = activeZoneIndex >= 0 ? activeZoneIndex : hoveredIndex;
-            }
+        if (isCtrlPressed) {
+            if (hoveredIndex === -1) {
+                // Mouse left the panel — reset multi-select so zones don't stay stuck
+                initialZoneIndex = -1;
+                activeZoneIndex = -1;
+            } else {
+                if (initialZoneIndex < 0) {
+                    initialZoneIndex = activeZoneIndex >= 0 ? activeZoneIndex : hoveredIndex;
+                }
 
-            if (initialZoneIndex >= 0) {
-                let targetGroup = zones[initialZoneIndex].groupIdx;
-                let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
-                let initDef = zones[initialZoneIndex].def;
+                if (initialZoneIndex >= 0) {
+                    let targetGroup = zones[initialZoneIndex].groupIdx;
+                    let activeDef = zones[activeZoneIndex >= 0 ? activeZoneIndex : initialZoneIndex].def;
+                    let initDef = zones[initialZoneIndex].def;
 
-                let minX = Math.min(initDef.x, activeDef.x);
-                let minY = Math.min(initDef.y, activeDef.y);
-                let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
-                let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
+                    let minX = Math.min(initDef.x, activeDef.x);
+                    let minY = Math.min(initDef.y, activeDef.y);
+                    let maxX = Math.max(initDef.x + initDef.w, activeDef.x + activeDef.w);
+                    let maxY = Math.max(initDef.y + initDef.h, activeDef.y + activeDef.h);
 
-                zones.forEach((zone, idx) => {
-                    if (zone.groupIdx === targetGroup) {
-                        let d = zone.def;
-                        let centerX = d.x + (d.w / 2);
-                        let centerY = d.y + (d.h / 2);
+                    zones.forEach((zone, idx) => {
+                        if (zone.groupIdx === targetGroup) {
+                            let d = zone.def;
+                            let centerX = d.x + (d.w / 2);
+                            let centerY = d.y + (d.h / 2);
 
-                        if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
-                            newSelectedIndices.push(idx);
+                            if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
+                                newSelectedIndices.push(idx);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         } else {
             if (hoveredIndex !== -1) {

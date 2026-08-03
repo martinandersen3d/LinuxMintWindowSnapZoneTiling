@@ -24,7 +24,7 @@ fully-supported interaction modes**:
 
 The overlay presents 15 distinct layout presets ("groups") arranged in a
 3-column grid. Each group contains 2–12 individual tiles. Users can
-optionally hold `Shift` to expand their selection across adjacent tiles
+optionally hold `Ctrl` to expand their selection across adjacent tiles
 within the same group, regardless of whether they're using the mouse or
 the keyboard.
 
@@ -42,7 +42,7 @@ the keyboard.
 | `zones` | array | Flat list of **every** tile across all 15 groups. Each entry: `{ groupIdx (0–14), widget, badgeLabel, bounds: {x,y,w,h} (absolute screen px, computed when shown), def: {x,y,w,h} (fractional 0.0–1.0, relative to its group) }`. |
 | `groupCards` | array | One entry per group: `{ widget, badgeLabel, zoneIndices: [...], isFocused }`, where `zoneIndices` lists that group's indices into `zones`. |
 | `activeZoneIndex` | int | Tile currently under the mouse pointer, `-1` if none. |
-| `initialZoneIndex` | int | Tile where a Shift multi-select range began, `-1` when inactive. Shared by both mouse and keyboard shift-selection. |
+| `initialZoneIndex` | int | Tile where a Ctrl multi-select range began, `-1` when inactive. Shared by both mouse and keyboard Ctrl-selection. |
 | `selectedZoneIndices` | array\<int> | Tiles currently highlighted/selected — the set that will be snapped to on confirm. |
 
 ### Mode / Navigation State
@@ -63,7 +63,7 @@ the keyboard.
 | `keyEventId` | Handle for the global key-press listener, active only while the hotkey-mode overlay is open. |
 | `mouseButtonEventId` | Handle for the global click listener, active only while the hotkey-mode overlay is open (see §7.2). |
 | `mouseTrackingTimer` | Handle for the ~40 ms mouse-position poll, active whenever hover-highlighting is needed (both modes). |
-| `lastMouseX`, `lastMouseY`, `lastShiftState` | Last-seen poll values, used to skip redundant hover recalculation when nothing changed. |
+| `lastMouseX`, `lastMouseY`, `lastCtrlState` | Last-seen poll values, used to skip redundant hover recalculation when nothing changed. |
 | `hideTimerId` | Short delay (~300 ms) before destroying/hiding the overlay after a drag-drop snap, to avoid a visible flash. |
 
 ---
@@ -117,7 +117,7 @@ Bottom-anchored, center-aligned, stacked text (~`65px` height budget):
 2. **Help line** — regular, 11px, off-white. Wording should reflect that
    *both* number keys and arrow keys work, e.g. *"Press a number, or use
    the arrow keys, to select a zone."*
-3. **Optional line** — regular, 10px, muted gray — *"(Optional) Hold Shift
+3. **Optional line** — regular, 10px, muted gray — *"(Optional) Hold Ctrl
    to expand selection."*
 
 ---
@@ -242,13 +242,13 @@ Runs on a fixed poll interval (~40 ms) whenever the overlay is open,
 **regardless of which mode opened it**:
 
 1. Read pointer coordinates and modifier-key state.
-2. Skip recomputation if neither the coordinates nor the Shift state
+2. Skip recomputation if neither the coordinates nor the Ctrl state
    changed since the last tick (cheap early-out).
 3. Hit-test the pointer against every zone's absolute `bounds` to find
    `hoveredIndex` (`-1` if none).
-4. **Shift released**: reset `initialZoneIndex = -1`; if hovering a tile,
+4. **Ctrl released**: reset `initialZoneIndex = -1`; if hovering a tile,
    `selectedZoneIndices = [hoveredIndex]`.
-5. **Shift held**:
+5. **Ctrl held**:
    - If `initialZoneIndex` is unset, lock it to the current
      `activeZoneIndex` (or `hoveredIndex`).
    - Only tiles in the **same group** as `initialZoneIndex` are eligible.
@@ -272,7 +272,7 @@ is a normal on-screen widget the user can click into:
 1. On a left-click (`button == 1`) anywhere while the hotkey-mode overlay
    is open:
 2. Re-run the hover hit-test at the exact click coordinates (with current
-   Shift state) so the selection reflects precisely where the click
+   Ctrl state) so the selection reflects precisely where the click
    landed, even if the poll loop's last tick is stale.
 3. If `selectedZoneIndices` is non-empty and `activeWindow` is valid, run
    the snap algorithm (§8), then close the overlay (§5.2 step "close").
@@ -322,12 +322,12 @@ overlay is open, dispatches based on `navStep`.
 
 - **Number keys `1`–`9`, `0`** (top-row and keypad): select that tile
   directly.
-  - Without Shift: immediately confirm and snap.
-  - With Shift: extend the selection from the tile where the shift-range
+  - Without Ctrl: immediately confirm and snap.
+  - With Ctrl: extend the selection from the tile where the Ctrl-range
     started (or the currently focused tile if no range is active yet) to
     this tile — same bounding-box-by-center-point rule as mouse
-    shift-drag (§7.1 step 5) — but do **not** auto-confirm; the user must
-    press Enter to commit a shift-expanded range.
+    Ctrl-drag (§7.1 step 5) — but do **not** auto-confirm; the user must
+    press Enter to commit a Ctrl-expanded range.
 - **Arrow keys**: move `focusedTileInGroup` to the nearest tile in the
   pressed direction, using each tile's fractional center point (not raw
   index order) so this works correctly regardless of how a given layout's
@@ -335,10 +335,10 @@ overlay is open, dispatches based on `navStep`.
   only counts as a candidate in a given direction if its center is
   strictly on that side (e.g., for `Right`, its center-x must be greater
   than the current tile's); among valid candidates, pick the closest one.
-  If Shift is held, apply the same shift-range-expansion described above
+  If Ctrl is held, apply the same Ctrl-range-expansion described above
   instead of a plain focus move.
 - **Enter / Space**: confirm and snap using the current
-  `selectedZoneIndices` (whether that's a single tile or a shift-expanded
+  `selectedZoneIndices` (whether that's a single tile or a Ctrl-expanded
   range).
 
 > **Numeric-keypad caveat**: keypad digit keys only report as literal
@@ -386,9 +386,9 @@ Identical regardless of which mode/input method triggered it:
 | Mouse move | Both | Update hover/selection highlight (§7.1) |
 | Left click on a tile | Hotkey only | Confirm + snap + close |
 | Number key | Hotkey, Step 1 | Jump to group + confirm → Step 2 |
-| Number key | Hotkey, Step 2 | Select tile (+ shift-range); confirm+snap unless Shift held |
+| Number key | Hotkey, Step 2 | Select tile (+ Ctrl-range); confirm+snap unless Ctrl held |
 | Arrow key | Hotkey, Step 1 | Move group focus cursor (no confirm) |
-| Arrow key | Hotkey, Step 2 | Move tile focus cursor, or shift-expand range if Shift held |
+| Arrow key | Hotkey, Step 2 | Move tile focus cursor, or Ctrl-expand range if Ctrl held |
 | Enter / Space | Hotkey, Step 1 | Confirm focused group → Step 2 |
 | Enter / Space | Hotkey, Step 2 | Confirm + snap + close |
 | Escape | Hotkey, Step 2 | Back to Step 1 |
@@ -406,7 +406,7 @@ Identical regardless of which mode/input method triggered it:
   and multi-DPI support trivial.
 - Visual "selected/highlighted" state should be a **single shared concept**
   driven off `selectedZoneIndices`, not three separate hover/focus/select
-  states — mouse hover, keyboard focus, and shift-range members should all
+  states — mouse hover, keyboard focus, and Ctrl-range members should all
   render identically.
 - Only mutate visual state (add/remove a highlight class, show/hide a
   badge) when the underlying state actually changed — both the reference

@@ -16,7 +16,7 @@ Effortlessly organize your workspace using fast keyboard navigation or seamless 
 * **Dual Navigation Modes:** 
   * **Hotkey Overlay:** Trigger with a configurable keyboard shortcut to snap the focused window step-by-step using digit keys or arrow keys.
   * **Mouse Drag Snap:** Hold/drag your window to view visual snap zones dynamically.
-* **Multi-Zone Selection:** Hold `Shift` to span windows across multiple adjacent grid cells simultaneously.
+* **Multi-Zone Selection:** Hold `Ctrl` to span windows across multiple adjacent grid cells simultaneously.
 * **Multi-Monitor Ready:** Automatically detects pointer location to display overlay and target grids on the active monitor.
 ---
 
@@ -25,13 +25,13 @@ Effortlessly organize your workspace using fast keyboard navigation or seamless 
 ### 🖱️ Mouse-Drag Mode
 1. Drag any window titlebar.
 2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
-3. *(Optional)* Hold `Shift` while hovering to select multiple zones simultaneously.
+3. *(Optional)* Hold `Ctrl` while hovering to select multiple zones simultaneously.
 
 ### ⌨️ Keyboard Mode
 1. Press your configured hotkey (e.g., `Super + G` or custom binding).
 2. **Step 1:** Select a **Layout Group** using digits `1`–`9` (or `0` for 10th), or navigate with **Arrow Keys** and press `Enter`.
 3. **Step 2:** Select a target **Zone Tile** using digit keys or arrow keys.
-4. *(Optional)* Hold `Shift` while moving arrow keys to select a region spanning multiple tiles. (Hold `Shift` down, while you press `Enter` to complete)
+4. *(Optional)* Hold `Ctrl` while moving arrow keys to select a region spanning multiple tiles. (Hold `Ctrl` down, while you press `Enter` to complete)
 5. Press `Enter` to snap!
 
 ---

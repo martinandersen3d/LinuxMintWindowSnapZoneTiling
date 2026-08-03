@@ -16,7 +16,7 @@ Please give feedback in in google form, the link is in the bottom of the page. O
 
 2. How did it work with the mouse?
 
-3. Using the SHIFT key while you drag over the Zones, did that work for you?
+3. Using the Ctrl key while you drag over the Zones, did that work for you?
 
 4. How did it work with the hotkey? 
     - Win+z / super+z

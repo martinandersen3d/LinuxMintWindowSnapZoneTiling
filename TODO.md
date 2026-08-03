@@ -10,12 +10,12 @@
 
 # TODO - BuG
 - Title Click Protection: Clicking on a title, the popup panel will show up. The popup panel should first be shown when it has been moved more than 5 pixels.
-- Bug: Use CTRL instad of SHIFT - The Shift key tries to snap the window (Cinnamon default feature)
+- Bug: Use CTRL instad of Ctrl - The Ctrl key tries to snap the window (Cinnamon default feature)
 - Bug:
-    - 1. CTRL / Shift is pressed down
-    - 2. A few Zones is selected (Ctrl/Shift still pressed)
+    - 1. CTRL / Ctrl is pressed down
+    - 2. A few Zones is selected (Ctrl/Ctrl still pressed)
     - 3. mouse is moved outside the panel
-    - 4. Try release the shift/ctrl while dragging outside panel, then press shift/ctrl again.
+    - 4. Try release the Ctrl/ctrl while dragging outside panel, then press Ctrl/ctrl again.
     - 5. The selected zones is stuck. This is a bug. When the mouse leaves the panel, nothing should be selected
 
     

@@ -14,11 +14,11 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 
 * **Mouse Drag Snap:** 
   * Hold/drag your window to view visual snap zones dynamically.
-  * **Multi-Zone Selection:** Hold `Shift` to span windows across multiple adjacent grid cells simultaneously.
+  * **Multi-Zone Selection:** Hold `Ctrl` to span windows across multiple adjacent grid cells simultaneously.
 * **Keyboard:** 
   * Open with keyboard  `Win+z` / `Super+z` 
   * Use arrow keys or number keys.
-  * **Multi-Zone Selection:** Hold `Shift` to span windows across multiple adjacent grid cells simultaneously.
+  * **Multi-Zone Selection:** Hold `Ctrl` to span windows across multiple adjacent grid cells simultaneously.
 * **Multi-Monitor Ready:** Automatically detects pointer location to display overlay and target grids on the active monitor.
 ---
 
@@ -27,13 +27,13 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 ### 🖱️ Mouse-Drag Mode
 1. Drag any window titlebar.
 2. Overlay zones display on screen. Hover over your desired target zone and release the mouse button to snap.
-3. *(Optional)* Hold `Shift` while hovering to select multiple zones simultaneously.
+3. *(Optional)* Hold `Ctrl` while hovering to select multiple zones simultaneously.
 
 ### ⌨️ Keyboard Mode
 1. Press your configured hotkey (e.g., `Super + z` or custom binding).
 2. **Step 1:** Select a **Layout Group** using digits `1`–`9` (or `0` for 10th), or navigate with **Arrow Keys** and press `Enter`.
 3. **Step 2:** Select a target **Zone Tile** using digit keys or arrow keys.
-4. *(Optional)* Hold `Shift` while moving arrow keys to select a region spanning multiple tiles. (Hold `Shift` down, while you press `Enter` to complete)
+4. *(Optional)* Hold `Ctrl` while moving arrow keys to select a region spanning multiple tiles. (Hold `Ctrl` down, while you press `Enter` to complete)
 5. Press `Enter` to snap!
 
 
@@ -105,7 +105,7 @@ You can easily change the shortcut key used to trigger the overlay:
   Your browser does not support the video tag.
 </video>
 
-### Hold `SHIFT` while you mouse drag to Multi-Select:
+### Hold `Ctrl` while you mouse drag to Multi-Select:
 <video src="https://github.com/user-attachments/assets/f112f0b4-b67c-4063-8df2-08797c61ba3c" controls width="100%">
   Your browser does not support the video tag.
 </video>
