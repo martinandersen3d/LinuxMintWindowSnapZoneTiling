@@ -189,6 +189,12 @@ function getMonitorAtPointer() {
 }
 
 const LAYOUT_GROUP_DEFS = [
+    // ── Primary presets (user-ordered) ─────────────────────────────────────
+    {
+        key: "layout-1x1",
+        label: "Full Screen (1x1)",
+        zones: createGridLayout(1, 1)
+    },
     {
         key: "layout-half-split-vertical",
         label: "Half Split (Vertical)",
@@ -196,11 +202,6 @@ const LAYOUT_GROUP_DEFS = [
             { name: "Left",  x: 0.0, y: 0.0, w: 0.5, h: 1.0 },
             { name: "Right", x: 0.5, y: 0.0, w: 0.5, h: 1.0 }
         ]
-    },
-    {
-        key: "layout-3-column-equal",
-        label: "3 Column (Equal)",
-        zones: createEqualVerticalLayout(3)
     },
     {
         key: "layout-2x2-grid",
@@ -213,12 +214,9 @@ const LAYOUT_GROUP_DEFS = [
         ]
     },
     {
-        key: "layout-golden-ratio-left",
-        label: "Golden Ratio (Left)",
-        zones: [
-            { name: "Wide Left",    x: 0.0,  y: 0.0, w: 0.75, h: 1.0 },
-            { name: "Narrow Right", x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
-        ]
+        key: "layout-3-column-equal",
+        label: "3 Column (Equal)",
+        zones: createEqualVerticalLayout(3)
     },
     {
         key: "layout-3-column-wide-center",
@@ -227,6 +225,84 @@ const LAYOUT_GROUP_DEFS = [
             { name: "Left",   x: 0.0,  y: 0.0, w: 0.25, h: 1.0 },
             { name: "Center", x: 0.25, y: 0.0, w: 0.50, h: 1.0 },
             { name: "Right",  x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-3-column-focus-center",
+        label: "3 Column (Focus Center)",
+        zones: [
+            { name: "Left",   x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
+            { name: "Center", x: 0.20, y: 0.0, w: 0.60, h: 1.0 },
+            { name: "Right",  x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
+        ]
+    },
+    {
+        key: "layout-4-column-equal",
+        label: "4 Column (Equal)",
+        zones: createEqualVerticalLayout(4)
+    },
+    {
+        key: "layout-5-column-equal",
+        label: "5 Column (Equal)",
+        zones: createEqualVerticalLayout(5)
+    },
+    {
+        key: "layout-6-column-equal",
+        label: "6 Column (Equal)",
+        zones: createEqualVerticalLayout(6)
+    },
+    {
+        key: "layout-2x4-grid",
+        label: "2x4 Grid",
+        zones: createGridLayout(4, 2)
+    },
+    {
+        key: "layout-3x2-grid",
+        label: "3x2 Grid",
+        zones: createGridLayout(2, 3)
+    },
+    {
+        key: "layout-3x3-grid",
+        label: "3x3 Grid",
+        zones: createGrid3x3Layout()
+    },
+    {
+        key: "layout-4x2-grid",
+        label: "4x2 Grid",
+        zones: createGridLayout(2, 4)
+    },
+    {
+        key: "layout-5x2-grid",
+        label: "5x2 Grid",
+        zones: createGridLayout(2, 5)
+    },
+    {
+        key: "layout-6x2-grid",
+        label: "6x2 Grid",
+        zones: createGridLayout(2, 6)
+    },
+    {
+        key: "layout-4x4-grid",
+        label: "4x4 Grid",
+        zones: createGrid4x4Layout()
+    },
+    {
+        key: "layout-5x4-grid",
+        label: "5x4 Grid (Ultra Wide)",
+        zones: createGrid5x4Layout()
+    },
+    {
+        key: "layout-6x4-grid",
+        label: "6x4 Grid",
+        zones: createGridLayout(4, 6)
+    },
+    // ── Extra presets — disabled by default ────────────────────────────────
+    {
+        key: "layout-golden-ratio-left",
+        label: "Golden Ratio (Left)",
+        zones: [
+            { name: "Wide Left",    x: 0.0,  y: 0.0, w: 0.75, h: 1.0 },
+            { name: "Narrow Right", x: 0.75, y: 0.0, w: 0.25, h: 1.0 }
         ]
     },
     {
@@ -246,36 +322,12 @@ const LAYOUT_GROUP_DEFS = [
         ]
     },
     {
-        key: "layout-3-column-focus-center",
-        label: "3 Column (Focus Center)",
-        zones: [
-            { name: "Left",   x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
-            { name: "Center", x: 0.20, y: 0.0, w: 0.60, h: 1.0 },
-            { name: "Right",  x: 0.80, y: 0.0, w: 0.20, h: 1.0 }
-        ]
-    },
-    {
         key: "layout-focus-right",
         label: "Focus Right (80/20)",
         zones: [
             { name: "Narrow Left", x: 0.0,  y: 0.0, w: 0.20, h: 1.0 },
             { name: "Wide Right",  x: 0.20, y: 0.0, w: 0.80, h: 1.0 }
         ]
-    },
-    {
-        key: "layout-4-column-equal",
-        label: "4 Column (Equal)",
-        zones: createEqualVerticalLayout(4)
-    },
-    {
-        key: "layout-5-column-equal",
-        label: "5 Column (Equal)",
-        zones: createEqualVerticalLayout(5)
-    },
-    {
-        key: "layout-6-column-equal",
-        label: "6 Column (Equal)",
-        zones: createEqualVerticalLayout(6)
     },
     {
         key: "layout-4-column-split",
@@ -291,27 +343,6 @@ const LAYOUT_GROUP_DEFS = [
         key: "layout-6-column-split",
         label: "6 Column (Split)",
         zones: createSplitVerticalLayout(6)
-    },
-    {
-        key: "layout-3x3-grid",
-        label: "3x3 Grid",
-        zones: createGrid3x3Layout()
-    },
-    {
-        key: "layout-4x4-grid",
-        label: "4x4 Grid",
-        zones: createGrid4x4Layout()
-    },
-    {
-        key: "layout-5x4-grid",
-        label: "5x4 Grid (Ultra Wide)",
-        zones: createGrid5x4Layout()
-    },
-    // Extra presets — disabled by default
-    {
-        key: "layout-1x1",
-        label: "Full Screen (1x1)",
-        zones: createGridLayout(1, 1)
     },
     {
         key: "layout-3x1",
@@ -331,47 +362,27 @@ const LAYOUT_GROUP_DEFS = [
     {
         key: "layout-2x3-grid",
         label: "2x3 Grid",
-        zones: createGridLayout(2, 3)
-    },
-    {
-        key: "layout-2x4-grid",
-        label: "2x4 Grid",
-        zones: createGridLayout(2, 4)
+        zones: createGridLayout(3, 2)
     },
     {
         key: "layout-2x5-grid",
         label: "2x5 Grid",
-        zones: createGridLayout(2, 5)
+        zones: createGridLayout(5, 2)
     },
     {
         key: "layout-3x4-grid",
         label: "3x4 Grid",
-        zones: createGridLayout(3, 4)
+        zones: createGridLayout(4, 3)
     },
     {
         key: "layout-4x3-grid",
         label: "4x3 Grid",
-        zones: createGridLayout(4, 3)
+        zones: createGridLayout(3, 4)
     },
     {
         key: "layout-5x3-grid",
         label: "5x3 Grid",
-        zones: createGridLayout(5, 3)
-    },
-    {
-        key: "layout-4x6-grid",
-        label: "4x6 Grid",
-        zones: createGridLayout(4, 6)
-    },
-    {
-        key: "layout-3x2-grid",
-        label: "3x2 Grid",
-        zones: createGridLayout(3, 2)
-    },
-    {
-        key: "layout-4x2-grid",
-        label: "4x2 Grid",
-        zones: createGridLayout(4, 2)
+        zones: createGridLayout(3, 5)
     }
 ];
 

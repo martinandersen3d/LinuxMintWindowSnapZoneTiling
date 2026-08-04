@@ -21,37 +21,39 @@
             "type": "section",
             "title": "Layout Presets",
             "keys": [
+                "layout-1x1",
                 "layout-half-split-vertical",
-                "layout-3-column-equal",
                 "layout-2x2-grid",
-                "layout-golden-ratio-left",
+                "layout-3-column-equal",
                 "layout-3-column-wide-center",
-                "layout-golden-ratio-right",
-                "layout-focus-left",
                 "layout-3-column-focus-center",
-                "layout-focus-right",
                 "layout-4-column-equal",
                 "layout-5-column-equal",
                 "layout-6-column-equal",
+                "layout-2x4-grid",
+                "layout-3x2-grid",
+                "layout-3x3-grid",
+                "layout-4x2-grid",
+                "layout-5x2-grid",
+                "layout-6x2-grid",
+                "layout-4x4-grid",
+                "layout-5x4-grid",
+                "layout-6x4-grid",
+                "layout-golden-ratio-left",
+                "layout-golden-ratio-right",
+                "layout-focus-left",
+                "layout-focus-right",
                 "layout-4-column-split",
                 "layout-5-column-split",
                 "layout-6-column-split",
-                "layout-3x3-grid",
-                "layout-4x4-grid",
-                "layout-5x4-grid",
-                "layout-1x1",
                 "layout-3x1",
                 "layout-4x1",
                 "layout-5x1",
                 "layout-2x3-grid",
-                "layout-2x4-grid",
                 "layout-2x5-grid",
                 "layout-3x4-grid",
                 "layout-4x3-grid",
-                "layout-5x3-grid",
-                "layout-4x6-grid",
-                "layout-3x2-grid",
-                "layout-4x2-grid"
+                "layout-5x3-grid"
             ]
         },
         "shortcuts-section": {
@@ -111,7 +113,7 @@
     "layout-golden-ratio-left": {
         "type": "switch",
         "description": "Golden Ratio (Left)",
-        "default": true
+        "default": false
     },
     "layout-3-column-wide-center": {
         "type": "switch",
@@ -121,12 +123,12 @@
     "layout-golden-ratio-right": {
         "type": "switch",
         "description": "Golden Ratio (Right)",
-        "default": true
+        "default": false
     },
     "layout-focus-left": {
         "type": "switch",
         "description": "Focus Left (80/20)",
-        "default": true
+        "default": false
     },
     "layout-3-column-focus-center": {
         "type": "switch",
@@ -136,7 +138,7 @@
     "layout-focus-right": {
         "type": "switch",
         "description": "Focus Right (80/20)",
-        "default": true
+        "default": false
     },
     "layout-4-column-equal": {
         "type": "switch",
@@ -156,17 +158,17 @@
     "layout-4-column-split": {
         "type": "switch",
         "description": "4 Column (Split)",
-        "default": true
+        "default": false
     },
     "layout-5-column-split": {
         "type": "switch",
         "description": "5 Column (Split)",
-        "default": true
+        "default": false
     },
     "layout-6-column-split": {
         "type": "switch",
         "description": "6 Column (Split)",
-        "default": true
+        "default": false
     },
     "layout-3x3-grid": {
         "type": "switch",
@@ -183,10 +185,25 @@
         "description": "5x4 Grid (Ultra Wide)",
         "default": true
     },
+    "layout-6x4-grid": {
+        "type": "switch",
+        "description": "6x4 Grid",
+        "default": true
+    },
+    "layout-5x2-grid": {
+        "type": "switch",
+        "description": "5x2 Grid",
+        "default": true
+    },
+    "layout-6x2-grid": {
+        "type": "switch",
+        "description": "6x2 Grid",
+        "default": true
+    },
     "layout-1x1": {
         "type": "switch",
         "description": "Full Screen (1x1)",
-        "default": false
+        "default": true
     },
     "layout-3x1": {
         "type": "switch",
@@ -211,7 +228,7 @@
     "layout-2x4-grid": {
         "type": "switch",
         "description": "2x4 Grid",
-        "default": false
+        "default": true
     },
     "layout-2x5-grid": {
         "type": "switch",
@@ -233,19 +250,14 @@
         "description": "5x3 Grid",
         "default": false
     },
-    "layout-4x6-grid": {
-        "type": "switch",
-        "description": "4x6 Grid",
-        "default": false
-    },
     "layout-3x2-grid": {
         "type": "switch",
         "description": "3x2 Grid",
-        "default": false
+        "default": true
     },
     "layout-4x2-grid": {
         "type": "switch",
         "description": "4x2 Grid",
-        "default": false
+        "default": true
     }
 }
