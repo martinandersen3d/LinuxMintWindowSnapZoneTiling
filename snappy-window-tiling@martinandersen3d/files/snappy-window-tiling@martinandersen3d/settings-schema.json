@@ -10,7 +10,7 @@
         "features-section": {
             "type": "section",
             "title": "Features",
-            "keys": ["enable-drag-snapping", "enable-keyboard-snapping"]
+            "keys": ["enable-drag-snapping", "enable-keyboard-snapping", "enable-workspace-switcher"]
         },
         "padding-section": {
             "type": "section",
@@ -70,6 +70,11 @@
     "enable-keyboard-snapping": {
         "type": "switch",
         "description": "Enable keyboard hotkey to open the zone overlay",
+        "default": true
+    },
+    "enable-workspace-switcher": {
+        "type": "switch",
+        "description": "Show workspace switcher row (move window to workspace)",
         "default": true
     },
     "outer-screen-padding": {

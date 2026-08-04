@@ -47,3 +47,25 @@
     border-radius: 4px;
     padding: 1px 6px;
 }
+
+.workspace-box {
+    background-color: rgba(50, 50, 50, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 6px;
+}
+
+.workspace-box-active {
+    background-color: rgba(29, 161, 242, 0.18);
+    border: 2px solid #1DA1F2;
+    border-radius: 6px;
+}
+
+.workspace-box-hover {
+    background-color: rgba(29, 161, 242, 0.38);
+    border: 1px solid #1DA1F2;
+    border-radius: 6px;
+}
+
+.workspace-box-plus {
+    border-style: dashed;
+}

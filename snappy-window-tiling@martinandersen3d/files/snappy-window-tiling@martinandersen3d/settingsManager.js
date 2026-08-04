@@ -107,6 +107,14 @@ function isLayoutEnabled(key) {
     }
 }
 
+function isWorkspaceSwitcherEnabled() {
+    try {
+        return _settings ? _settings.getValue("enable-workspace-switcher") : true;
+    } catch (e) {
+        return true;
+    }
+}
+
 /**
  * Connect a callback to a settings key change.
  * @param {string} key - settings key name

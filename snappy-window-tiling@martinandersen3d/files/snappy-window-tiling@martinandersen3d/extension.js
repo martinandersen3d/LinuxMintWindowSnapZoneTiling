@@ -45,6 +45,12 @@ let pendingDragShow = false;
 let dragStartX = -1;
 let dragStartY = -1;
 
+let workspaceSectionContainer = null;
+let workspaceBoxesContainer = null;
+let workspaceBoxItems = [];
+let hoveredWorkspaceIdx = -1;
+const WORKSPACE_SECTION_HEIGHT = 88;
+
 let extensionUuid = "";
 
 function createEqualVerticalLayout(count) {
@@ -442,6 +448,7 @@ function enable() {
         LAYOUT_GROUP_DEFS.forEach(def => {
             SettingsManager.connectChanged(def.key, rebuildOverlay);
         });
+        SettingsManager.connectChanged("enable-workspace-switcher", rebuildOverlay);
 
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
@@ -487,11 +494,14 @@ function buildOverlayUIOnce() {
         const padding = 14;
         const footerHeight = 65;
 
+        const wsEnabled = SettingsManager ? SettingsManager.isWorkspaceSwitcherEnabled() : true;
+        const wsSectionHeight = wsEnabled ? WORKSPACE_SECTION_HEIGHT : 0;
+
         const gridWidth = (GROUP_GRID_COLS * cardWidth) + ((GROUP_GRID_COLS - 1) * gap);
         const gridHeight = (groupRows * cardHeight) + ((groupRows - 1) * gap);
 
         const popupWidth = gridWidth + (padding * 2);
-        const popupHeight = gridHeight + (padding * 2) + footerHeight;
+        const popupHeight = gridHeight + (padding * 2) + footerHeight + wsSectionHeight;
 
         overlayContainer = new St.Widget({
             reactive: true,
@@ -625,6 +635,43 @@ function buildOverlayUIOnce() {
         footerBox.add_actor(optionalLine);
 
         overlayContainer.add_actor(footerBox);
+
+        if (wsEnabled) {
+            const wsSectionY = footerOffsetY + footerHeight;
+            workspaceSectionContainer = new St.Widget({
+                x: 0,
+                y: wsSectionY,
+                width: popupWidth,
+                height: WORKSPACE_SECTION_HEIGHT
+            });
+
+            let wsDivider = new St.Widget({
+                x: padding,
+                y: 8,
+                width: gridWidth,
+                height: 1,
+                style: 'background-color: rgba(255,255,255,0.2);'
+            });
+            workspaceSectionContainer.add_actor(wsDivider);
+
+            let wsLabel = new St.Label({
+                text: 'Move application to workspace  (SHIFT + workspace index)',
+                x: padding,
+                y: 18,
+                style: 'font-size: 11px; color: rgba(160,160,160,0.9);'
+            });
+            workspaceSectionContainer.add_actor(wsLabel);
+
+            workspaceBoxesContainer = new St.Widget({
+                x: padding,
+                y: 44,
+                width: gridWidth,
+                height: 36
+            });
+            workspaceSectionContainer.add_actor(workspaceBoxesContainer);
+            overlayContainer.add_actor(workspaceSectionContainer);
+        }
+
         Main.uiGroup.add_actor(overlayContainer);
     } catch (e) {
         global.logError("[drag-overlay] Error in buildOverlayUIOnce: " + e.message);
@@ -646,6 +693,10 @@ function showOverlay() {
         
 
         overlayContainer.set_position(popupX, popupY);
+
+        if (workspaceBoxesContainer) {
+            refreshWorkspaceBoxes();
+        }
 
         zones.forEach(z => {
             z.bounds.x = popupX + z.groupX + z.localX;
@@ -750,6 +801,11 @@ function hideOverlay() {
             }
             isPressHeld = false;
 
+            if (hoveredWorkspaceIdx !== -1 && workspaceBoxItems[hoveredWorkspaceIdx]) {
+                workspaceBoxItems[hoveredWorkspaceIdx].widget.remove_style_class_name('workspace-box-hover');
+            }
+            hoveredWorkspaceIdx = -1;
+
             stopMouseTracking();
 
             global.stage.set_key_focus(null);
@@ -781,6 +837,10 @@ function destroyOverlayUI() {
             Main.uiGroup.remove_actor(overlayContainer);
             overlayContainer.destroy();
             overlayContainer = null;
+            workspaceSectionContainer = null;
+            workspaceBoxesContainer = null;
+            workspaceBoxItems = [];
+            hoveredWorkspaceIdx = -1;
             zones = [];
             groupCards = [];
         }
@@ -837,7 +897,10 @@ function onGrabEnd(display, screen, window, op) {
         dragStartX = -1;
         dragStartY = -1;
 
-        if (activeWindow && selectedZoneIndices.length > 0) {
+        if (activeWindow && hoveredWorkspaceIdx !== -1) {
+            let wsItem = workspaceBoxItems[hoveredWorkspaceIdx];
+            moveWindowToWorkspace(activeWindow, wsItem.wsIndex);
+        } else if (activeWindow && selectedZoneIndices.length > 0) {
             snapWindowToSelectedZones(activeWindow, selectedZoneIndices);
         }
 
@@ -1107,6 +1170,24 @@ function onKeyPress(actor, event) {
         let symbol = event.get_key_symbol();
         let state = event.get_state();
         let isCtrlPressed = (state & Clutter.ModifierType.CONTROL_MASK) !== 0;
+        let isShiftPressed = (state & Clutter.ModifierType.SHIFT_MASK) !== 0;
+
+        // SHIFT+1..9 → move window to workspace N (no confirmation)
+        // Use hardware keycode (evdev 10-18 = keys 1-9) so SHIFT doesn't change the symbol
+        if (isShiftPressed) {
+            let keycode = event.get_key_code();
+            let wsIdx = -1;
+            if (keycode >= 10 && keycode <= 18) {
+                wsIdx = keycode - 10; // 0-based: key "1" → workspace 0
+            } else if (symbol >= Clutter.KEY_KP_1 && symbol <= Clutter.KEY_KP_9) {
+                wsIdx = symbol - Clutter.KEY_KP_1; // numpad fallback
+            }
+            if (wsIdx >= 0) {
+                if (activeWindow) moveWindowToWorkspace(activeWindow, wsIdx);
+                hideOverlay();
+                return true;
+            }
+        }
 
         if (symbol === Clutter.KEY_Escape) {
             if (navStep === 2) {
@@ -1222,6 +1303,17 @@ function onButtonPress(actor, event) {
         if (event.get_button() !== 1) return false;
 
         let [mx, my] = event.get_coords();
+
+        // Workspace box click → move window to that workspace immediately
+        for (let i = 0; i < workspaceBoxItems.length; i++) {
+            let b = workspaceBoxItems[i].bounds;
+            if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) {
+                if (activeWindow) moveWindowToWorkspace(activeWindow, workspaceBoxItems[i].wsIndex);
+                hideOverlay();
+                return true;
+            }
+        }
+
         // Anchor the press position as a single-zone selection.
         updateZoneHover(mx, my, false);
 
@@ -1298,6 +1390,7 @@ function startMouseTracking() {
             lastCtrlState = isCtrlPressed;
 
             updateZoneHover(mouseX, mouseY, isCtrlPressed || isPressHeld);
+            updateWorkspaceHover(mouseX, mouseY);
             return true;
         });
     } catch (e) {
@@ -1313,6 +1406,136 @@ function stopMouseTracking() {
         }
     } catch (e) {
         global.logError("[drag-overlay] Error in stopMouseTracking: " + e.message);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Workspace switcher helpers
+// ---------------------------------------------------------------------------
+
+function getWorkspaceManager() {
+    return global.workspace_manager || global.screen;
+}
+
+function moveWindowToWorkspace(win, wsIdx) {
+    try {
+        let wsManager = getWorkspaceManager();
+        let nWs = wsManager.n_workspaces;
+        if (wsIdx >= nWs) {
+            wsManager.append_new_workspace(false, global.get_current_time());
+        }
+        win.change_workspace_by_index(wsIdx, false);
+        wsManager.get_workspace_by_index(wsIdx).activate(global.get_current_time());
+    } catch (e) {
+        global.logError("[drag-overlay] Error in moveWindowToWorkspace: " + e.message);
+    }
+}
+
+function refreshWorkspaceBoxes() {
+    try {
+        if (!workspaceBoxesContainer) return;
+
+        let children = workspaceBoxesContainer.get_children();
+        children.forEach(c => workspaceBoxesContainer.remove_actor(c));
+        workspaceBoxItems = [];
+        hoveredWorkspaceIdx = -1;
+
+        let wsManager = getWorkspaceManager();
+        let nWs = wsManager.n_workspaces;
+        let activeWsIdx = wsManager.get_active_workspace_index();
+        let totalItems = nWs + 1; // +1 for "+"
+
+        let containerWidth = workspaceBoxesContainer.width;
+        let boxHeight = 34;
+        let gap = 6;
+        let totalGaps = (totalItems - 1) * gap;
+        let boxWidth = Math.max(28, Math.floor((containerWidth - totalGaps) / totalItems));
+
+        // Absolute screen position of the boxes container
+        let wsBoxAbsX = overlayContainer.x + workspaceSectionContainer.x + workspaceBoxesContainer.x;
+        let wsBoxAbsY = overlayContainer.y + workspaceSectionContainer.y + workspaceBoxesContainer.y;
+
+        for (let i = 0; i < nWs; i++) {
+            let isActive = (i === activeWsIdx);
+            let boxX = i * (boxWidth + gap);
+
+            let box = new St.Widget({
+                x: boxX,
+                y: 0,
+                width: boxWidth,
+                height: boxHeight,
+                style_class: isActive ? 'workspace-box workspace-box-active' : 'workspace-box'
+            });
+
+            let numLabel = new St.Label({
+                text: String(i + 1),
+                x: Math.floor((boxWidth - 8) / 2),
+                y: Math.floor((boxHeight - 16) / 2),
+                style: 'font-size: 13px; font-weight: bold; color: rgba(255,255,255,0.9);'
+            });
+            box.add_actor(numLabel);
+            workspaceBoxesContainer.add_actor(box);
+
+            workspaceBoxItems.push({
+                widget: box,
+                wsIndex: i,
+                isPlus: false,
+                bounds: { x: wsBoxAbsX + boxX, y: wsBoxAbsY, w: boxWidth, h: boxHeight }
+            });
+        }
+
+        // "+" create-workspace button
+        let plusX = nWs * (boxWidth + gap);
+        let plusBox = new St.Widget({
+            x: plusX,
+            y: 0,
+            width: boxWidth,
+            height: boxHeight,
+            style_class: 'workspace-box workspace-box-plus'
+        });
+        let plusLabel = new St.Label({
+            text: '+',
+            x: Math.floor((boxWidth - 8) / 2),
+            y: Math.floor((boxHeight - 18) / 2),
+            style: 'font-size: 16px; font-weight: bold; color: rgba(255,255,255,0.55);'
+        });
+        plusBox.add_actor(plusLabel);
+        workspaceBoxesContainer.add_actor(plusBox);
+        workspaceBoxItems.push({
+            widget: plusBox,
+            wsIndex: nWs,
+            isPlus: true,
+            bounds: { x: wsBoxAbsX + plusX, y: wsBoxAbsY, w: boxWidth, h: boxHeight }
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Error in refreshWorkspaceBoxes: " + e.message);
+    }
+}
+
+function updateWorkspaceHover(mx, my) {
+    try {
+        if (workspaceBoxItems.length === 0) return;
+
+        let newIdx = -1;
+        for (let i = 0; i < workspaceBoxItems.length; i++) {
+            let b = workspaceBoxItems[i].bounds;
+            if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) {
+                newIdx = i;
+                break;
+            }
+        }
+
+        if (newIdx === hoveredWorkspaceIdx) return;
+
+        if (hoveredWorkspaceIdx !== -1 && workspaceBoxItems[hoveredWorkspaceIdx]) {
+            workspaceBoxItems[hoveredWorkspaceIdx].widget.remove_style_class_name('workspace-box-hover');
+        }
+        hoveredWorkspaceIdx = newIdx;
+        if (hoveredWorkspaceIdx !== -1) {
+            workspaceBoxItems[hoveredWorkspaceIdx].widget.add_style_class_name('workspace-box-hover');
+        }
+    } catch (e) {
+        global.logError("[drag-overlay] Error in updateWorkspaceHover: " + e.message);
     }
 }
 
