@@ -76,6 +76,29 @@ function createSplitVerticalLayout(count) {
     }
 }
 
+function createGridLayout(rows, cols) {
+    try {
+        let layout = [];
+        let width = 1.0 / cols;
+        let height = 1.0 / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                layout.push({
+                    name: `R${r + 1}C${c + 1}`,
+                    x: c * width,
+                    y: r * height,
+                    w: width,
+                    h: height
+                });
+            }
+        }
+        return layout;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in createGridLayout: " + e.message);
+        return [];
+    }
+}
+
 function createGrid3x3Layout() {
     try {
         let layout = [];
@@ -283,6 +306,72 @@ const LAYOUT_GROUP_DEFS = [
         key: "layout-5x4-grid",
         label: "5x4 Grid (Ultra Wide)",
         zones: createGrid5x4Layout()
+    },
+    // Extra presets — disabled by default
+    {
+        key: "layout-1x1",
+        label: "Full Screen (1x1)",
+        zones: createGridLayout(1, 1)
+    },
+    {
+        key: "layout-3x1",
+        label: "3x1 (Horizontal Strips)",
+        zones: createGridLayout(3, 1)
+    },
+    {
+        key: "layout-4x1",
+        label: "4x1 (Horizontal Strips)",
+        zones: createGridLayout(4, 1)
+    },
+    {
+        key: "layout-5x1",
+        label: "5x1 (Horizontal Strips)",
+        zones: createGridLayout(5, 1)
+    },
+    {
+        key: "layout-2x3-grid",
+        label: "2x3 Grid",
+        zones: createGridLayout(2, 3)
+    },
+    {
+        key: "layout-2x4-grid",
+        label: "2x4 Grid",
+        zones: createGridLayout(2, 4)
+    },
+    {
+        key: "layout-2x5-grid",
+        label: "2x5 Grid",
+        zones: createGridLayout(2, 5)
+    },
+    {
+        key: "layout-3x4-grid",
+        label: "3x4 Grid",
+        zones: createGridLayout(3, 4)
+    },
+    {
+        key: "layout-4x3-grid",
+        label: "4x3 Grid",
+        zones: createGridLayout(4, 3)
+    },
+    {
+        key: "layout-5x3-grid",
+        label: "5x3 Grid",
+        zones: createGridLayout(5, 3)
+    },
+    {
+        key: "layout-4x6-grid",
+        label: "4x6 Grid",
+        zones: createGridLayout(4, 6)
+    },
+    {
+        key: "layout-3x2-grid",
+        label: "3x2 Grid",
+        zones: createGridLayout(3, 2)
+    },
+    {
+        key: "layout-4x2-grid",
+        label: "4x2 Grid",
+        zones: createGridLayout(4, 2)
     }
 ];
 
@@ -310,7 +399,6 @@ function init(metadata) {
 function enable() {
     try {
         SettingsManager.log("enable() called");
-        buildOverlayUIOnce();
 
         SettingsManager.createSettings(this);
 

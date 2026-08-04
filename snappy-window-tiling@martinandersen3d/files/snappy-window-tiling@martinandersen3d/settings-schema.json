@@ -38,7 +38,20 @@
                 "layout-6-column-split",
                 "layout-3x3-grid",
                 "layout-4x4-grid",
-                "layout-5x4-grid"
+                "layout-5x4-grid",
+                "layout-1x1",
+                "layout-3x1",
+                "layout-4x1",
+                "layout-5x1",
+                "layout-2x3-grid",
+                "layout-2x4-grid",
+                "layout-2x5-grid",
+                "layout-3x4-grid",
+                "layout-4x3-grid",
+                "layout-5x3-grid",
+                "layout-4x6-grid",
+                "layout-3x2-grid",
+                "layout-4x2-grid"
             ]
         },
         "shortcuts-section": {
@@ -169,5 +182,70 @@
         "type": "switch",
         "description": "5x4 Grid (Ultra Wide)",
         "default": true
+    },
+    "layout-1x1": {
+        "type": "switch",
+        "description": "Full Screen (1x1)",
+        "default": false
+    },
+    "layout-3x1": {
+        "type": "switch",
+        "description": "3x1 (Horizontal Strips)",
+        "default": false
+    },
+    "layout-4x1": {
+        "type": "switch",
+        "description": "4x1 (Horizontal Strips)",
+        "default": false
+    },
+    "layout-5x1": {
+        "type": "switch",
+        "description": "5x1 (Horizontal Strips)",
+        "default": false
+    },
+    "layout-2x3-grid": {
+        "type": "switch",
+        "description": "2x3 Grid",
+        "default": false
+    },
+    "layout-2x4-grid": {
+        "type": "switch",
+        "description": "2x4 Grid",
+        "default": false
+    },
+    "layout-2x5-grid": {
+        "type": "switch",
+        "description": "2x5 Grid",
+        "default": false
+    },
+    "layout-3x4-grid": {
+        "type": "switch",
+        "description": "3x4 Grid",
+        "default": false
+    },
+    "layout-4x3-grid": {
+        "type": "switch",
+        "description": "4x3 Grid",
+        "default": false
+    },
+    "layout-5x3-grid": {
+        "type": "switch",
+        "description": "5x3 Grid",
+        "default": false
+    },
+    "layout-4x6-grid": {
+        "type": "switch",
+        "description": "4x6 Grid",
+        "default": false
+    },
+    "layout-3x2-grid": {
+        "type": "switch",
+        "description": "3x2 Grid",
+        "default": false
+    },
+    "layout-4x2-grid": {
+        "type": "switch",
+        "description": "4x2 Grid",
+        "default": false
     }
 }
