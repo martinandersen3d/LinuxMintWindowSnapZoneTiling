@@ -1230,6 +1230,9 @@ function onButtonPress(actor, event) {
             if (mouseButtonReleaseEventId === 0) {
                 mouseButtonReleaseEventId = global.stage.connect('button-release-event', onButtonRelease);
             }
+        } else {
+            // Click was outside all zones — dismiss the overlay
+            hideOverlay();
         }
 
         return true;

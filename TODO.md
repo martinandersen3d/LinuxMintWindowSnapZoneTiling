@@ -7,11 +7,12 @@
 - Touchscreen: I need to verify that it works here. And maybe there should be some alternative way to activate the popup. When there is a touchscreen (on screen keyboard - I dont think you can trigger keyboard hotkeys like Super+z)
 
 # TODO - BuG
-- Activate with hotkey > Click outsite panel does not close the panel.
+
 
 
 ---
-# DONE - Feature
+# DONE - BuG
+- Activate with hotkey > Click outsite panel does not close the panel.
 - Edge Gap: In settings, there should be a Window Padding / border distance,  setting, that will set how many pixels from the edge there should be a gap.
 - Settings:
     - Be able to select what presets you want to see
