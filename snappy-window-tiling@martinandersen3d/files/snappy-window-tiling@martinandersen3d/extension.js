@@ -44,6 +44,7 @@ const DRAG_SHOW_THRESHOLD = 5;
 let pendingDragShow = false;
 let dragStartX = -1;
 let dragStartY = -1;
+let preDragWindowRect = null;
 
 let workspaceSectionContainer = null;
 let workspaceBoxesContainer = null;
@@ -872,6 +873,7 @@ function onGrabBegin(display, screen, window, op) {
             if (!SettingsManager.isDragEnabled()) return;
 
             activeWindow = window;
+            preDragWindowRect = window.get_frame_rect();
 
             if (hideTimerId > 0) {
                 Mainloop.source_remove(hideTimerId);
@@ -896,10 +898,12 @@ function onGrabEnd(display, screen, window, op) {
         pendingDragShow = false;
         dragStartX = -1;
         dragStartY = -1;
+        let savedRect = preDragWindowRect;
+        preDragWindowRect = null;
 
         if (activeWindow && hoveredWorkspaceIdx !== -1) {
             let wsItem = workspaceBoxItems[hoveredWorkspaceIdx];
-            moveWindowToWorkspace(activeWindow, wsItem.wsIndex);
+            moveWindowToWorkspace(activeWindow, wsItem.wsIndex, savedRect);
         } else if (activeWindow && selectedZoneIndices.length > 0) {
             snapWindowToSelectedZones(activeWindow, selectedZoneIndices);
         }
@@ -1417,7 +1421,7 @@ function getWorkspaceManager() {
     return global.workspace_manager || global.screen;
 }
 
-function moveWindowToWorkspace(win, wsIdx) {
+function moveWindowToWorkspace(win, wsIdx, savedRect) {
     try {
         let wsManager = getWorkspaceManager();
         let nWs = wsManager.n_workspaces;
@@ -1426,6 +1430,13 @@ function moveWindowToWorkspace(win, wsIdx) {
         }
         win.change_workspace_by_index(wsIdx, false);
         wsManager.get_workspace_by_index(wsIdx).activate(global.get_current_time());
+        if (savedRect) {
+            // Restore position after compositor settles from workspace switch
+            Mainloop.timeout_add(50, function() {
+                try { win.move_frame(false, savedRect.x, savedRect.y); } catch(e) {}
+                return false;
+            });
+        }
     } catch (e) {
         global.logError("[drag-overlay] Error in moveWindowToWorkspace: " + e.message);
     }
