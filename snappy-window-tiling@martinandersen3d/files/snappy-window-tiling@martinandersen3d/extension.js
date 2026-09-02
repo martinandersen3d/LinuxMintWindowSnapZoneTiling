@@ -19,6 +19,7 @@ let activeWindow = null;
 
 let overlayContainer = null;
 let activeMonitor = null;
+let overlayCache = new Map(); // keyed by "WIDTHxHEIGHT" -> { overlayContainer, zones, groupCards, workspaceSectionContainer, workspaceBoxesContainer, workspaceBoxItems, hoveredWorkspaceIdx }
 let zones = [];
 let groupCards = [];
 let activeZoneIndex = -1;
@@ -483,14 +484,15 @@ function disable() {
     }
 }
 
-function buildOverlayUIOnce() {
+function buildOverlayUIOnce(aspect, cacheKey) {
     try {
-        if (overlayContainer) return;
-
         const activeLayouts = getActiveLayoutGroups();
         const groupRows = Math.ceil(activeLayouts.length / GROUP_GRID_COLS);
-        const cardWidth = 140;
         const cardHeight = 85;
+        const MIN_CARD_WIDTH = 100;
+        const MAX_CARD_WIDTH = 320;
+        const cardWidth = Math.max(MIN_CARD_WIDTH, Math.min(MAX_CARD_WIDTH,
+            Math.round(cardHeight * (aspect || (16 / 9)))));
         const gap = 10;
         const padding = 14;
         const footerHeight = 65;
@@ -674,6 +676,18 @@ function buildOverlayUIOnce() {
         }
 
         Main.uiGroup.add_actor(overlayContainer);
+
+        if (cacheKey) {
+            overlayCache.set(cacheKey, {
+                overlayContainer: overlayContainer,
+                zones: zones,
+                groupCards: groupCards,
+                workspaceSectionContainer: workspaceSectionContainer,
+                workspaceBoxesContainer: workspaceBoxesContainer,
+                workspaceBoxItems: workspaceBoxItems,
+                hoveredWorkspaceIdx: hoveredWorkspaceIdx
+            });
+        }
     } catch (e) {
         global.logError("[drag-overlay] Error in buildOverlayUIOnce: " + e.message);
     }
@@ -681,10 +695,31 @@ function buildOverlayUIOnce() {
 
 function showOverlay() {
     try {
-        if (!overlayContainer) buildOverlayUIOnce();
-        if (overlayContainer.visible) return;
-
         activeMonitor = getMonitorAtPointer();
+        const cacheKey = activeMonitor.width + "x" + activeMonitor.height;
+        const aspect = activeMonitor.width / activeMonitor.height;
+
+        const cached = overlayCache.get(cacheKey);
+        if (cached) {
+            overlayContainer = cached.overlayContainer;
+            zones = cached.zones;
+            groupCards = cached.groupCards;
+            workspaceSectionContainer = cached.workspaceSectionContainer;
+            workspaceBoxesContainer = cached.workspaceBoxesContainer;
+            workspaceBoxItems = cached.workspaceBoxItems;
+            hoveredWorkspaceIdx = cached.hoveredWorkspaceIdx;
+        } else {
+            overlayContainer = null;
+            zones = [];
+            groupCards = [];
+            workspaceSectionContainer = null;
+            workspaceBoxesContainer = null;
+            workspaceBoxItems = [];
+            hoveredWorkspaceIdx = -1;
+            buildOverlayUIOnce(aspect, cacheKey);
+        }
+
+        if (overlayContainer.visible) return;
 
         const popupX = Math.floor(activeMonitor.x + (activeMonitor.width - overlayContainer.width) / 2);
         var popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.15));
@@ -835,16 +870,23 @@ function destroyOverlayUI() {
     try {
         if (overlayContainer) {
             hideOverlay();
-            Main.uiGroup.remove_actor(overlayContainer);
-            overlayContainer.destroy();
-            overlayContainer = null;
-            workspaceSectionContainer = null;
-            workspaceBoxesContainer = null;
-            workspaceBoxItems = [];
-            hoveredWorkspaceIdx = -1;
-            zones = [];
-            groupCards = [];
         }
+        overlayCache.forEach(function(entry) {
+            try {
+                Main.uiGroup.remove_actor(entry.overlayContainer);
+                entry.overlayContainer.destroy();
+            } catch (e2) {
+                global.logError("[drag-overlay] Error destroying cached overlay: " + e2.message);
+            }
+        });
+        overlayCache.clear();
+        overlayContainer = null;
+        workspaceSectionContainer = null;
+        workspaceBoxesContainer = null;
+        workspaceBoxItems = [];
+        hoveredWorkspaceIdx = -1;
+        zones = [];
+        groupCards = [];
     } catch (e) {
         global.logError("[drag-overlay] Error in destroyOverlayUI: " + e.message);
     }
