@@ -6,6 +6,10 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 
 
 ![alt text](media/SnappyWindowsTiling.gif)
+
+### Docked mode
+
+![Docked mode](media/SnappyWindowsTiling-docked.gif)
 ---
 
 ## Features
@@ -27,6 +31,8 @@ Effortlessly organize your windows with mouse-drag overlay zones or fast keyboar
 * **Multi-Monitor Ready:** Automatically detects pointer location to display overlay and target grids on the active monitor.
 * **Window Padding:** Configure outer screen padding (gap from screen edges) and inner window padding (gap between adjacent tiled windows) — both default to 0.
 * **Layout Presets:** Choose which of the 18 built-in layouts appear in the overlay. Toggle any preset on or off in Settings — changes take effect immediately.
+* **Overlay Mode:** *Floating* (centered popup) or *Docked* — a Windows 11 style dock that peeks from the top edge of the active monitor and slides out when you drag a window towards it.
+* **Theme:** *Dark* or *Glass* (translucent) look for both overlay modes.
 ---
 
 ## Usage
@@ -100,6 +106,10 @@ You can easily change the shortcut key used to trigger the overlay:
 | **Enable drag-to-snap** | ✅ On | Show the zone overlay when dragging a window by its titlebar. Disable this if you only want keyboard-based snapping. |
 | **Enable keyboard hotkey** | ✅ On | Register the global hotkey that opens the overlay for the focused window. Disable this if you only want drag-to-snap. |
 | **Show workspace switcher** | ✅ On | Show the workspace row at the bottom of the overlay. Disable to hide it and reduce the overlay height. |
+| **Show help text** | ✅ On | Show the key hints below the zones. |
+| **Show credits** | ✅ On | Show the small author line at the bottom of the overlay. |
+| **Overlay mode** | Floating | *Floating*: centered popup. *Docked*: dock hidden at the top edge, slides out when the dragged window approaches (or on hotkey). |
+| **Theme** | Dark | *Dark* or *Glass* (translucent) overlay style. |
 
 ### Window Padding
 

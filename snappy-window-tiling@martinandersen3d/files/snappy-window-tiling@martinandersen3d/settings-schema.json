@@ -10,7 +10,7 @@
         "features-section": {
             "type": "section",
             "title": "Features",
-            "keys": ["enable-drag-snapping", "enable-keyboard-snapping", "enable-workspace-switcher"]
+            "keys": ["enable-drag-snapping", "enable-keyboard-snapping", "enable-workspace-switcher", "show-help-text", "show-credits", "overlay-mode", "theme"]
         },
         "padding-section": {
             "type": "section",
@@ -76,6 +76,36 @@
         "type": "switch",
         "description": "Show workspace switcher row (move window to workspace)",
         "default": true
+    },
+    "show-help-text": {
+        "type": "switch",
+        "description": "Show help text below the zones",
+        "default": true
+    },
+    "show-credits": {
+        "type": "switch",
+        "description": "Show credits (small author line at the bottom)",
+        "default": true
+    },
+    "overlay-mode": {
+        "type": "combobox",
+        "description": "Overlay mode",
+        "tooltip": "Floating: panel in the middle of the screen. Docked: glass dock at the top of the screen that slides out when the pointer gets close while dragging.",
+        "options": {
+            "Floating": "floating",
+            "Docked": "docked"
+        },
+        "default": "floating"
+    },
+    "theme": {
+        "type": "combobox",
+        "description": "Theme",
+        "tooltip": "Dark: solid dark panel. Glass: translucent Windows 11 style glass panel.",
+        "options": {
+            "Dark": "dark",
+            "Glass": "glass"
+        },
+        "default": "dark"
     },
     "outer-screen-padding": {
         "type": "spinbutton",

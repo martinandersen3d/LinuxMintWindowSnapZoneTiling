@@ -69,3 +69,55 @@
 .workspace-box-plus {
     border-style: dashed;
 }
+
+/* Glass theme — Windows 11 style glass panel (both overlay modes) */
+.drag-overlay-container.snappy-glass {
+    /* In St, background-gradient-start replaces background-color, so the
+       tint and its opacity live in the gradient stops. */
+    background-gradient-direction: vertical;
+    background-gradient-start: rgba(52, 57, 66, 0.86);
+    background-gradient-end: rgba(30, 33, 40, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.45);
+}
+
+.snappy-glass .drag-group-card {
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+}
+
+.snappy-glass .drag-group-card-focused {
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 2px solid #1DA1F2;
+}
+
+.snappy-glass .drag-zone-tile {
+    background-color: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.snappy-glass .drag-zone-tile-focused {
+    background-color: rgba(29, 161, 242, 0.85);
+    border: 1px solid #1DA1F2;
+}
+
+.snappy-glass .workspace-box {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.snappy-glass .workspace-box-active {
+    background-color: rgba(29, 161, 242, 0.18);
+    border: 2px solid #1DA1F2;
+}
+
+.snappy-glass .workspace-box-hover {
+    background-color: rgba(29, 161, 242, 0.38);
+    border: 1px solid #1DA1F2;
+}
+
+.snappy-glass .workspace-box-plus {
+    border-style: dashed;
+}

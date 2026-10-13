@@ -10,7 +10,9 @@ let SettingsManager = null;
 // ---------------------------------------------------------------------------
 // Layout grid geometry (used for both rendering and Step 1 arrow navigation)
 // ---------------------------------------------------------------------------
-const GROUP_GRID_COLS = 3;
+const FLOATING_GRID_COLS = 3;
+const DOCKED_GRID_COLS = 5;
+let groupGridCols = FLOATING_GRID_COLS;
 
 let grabBeginId = 0;
 let grabEndId = 0;
@@ -46,11 +48,30 @@ let dragStartX = -1;
 let dragStartY = -1;
 let preDragWindowRect = null;
 
+let creditLabel = null;   // small author line at the bottom of the overlay
+const CREDIT_HEIGHT = 16;
+
 let workspaceSectionContainer = null;
 let workspaceBoxesContainer = null;
 let workspaceBoxItems = [];
 let hoveredWorkspaceIdx = -1;
 const WORKSPACE_SECTION_HEIGHT = 88;
+
+// Docked mode: the overlay hides above the top edge of the monitor with only
+// its bottom edge peeking out, and slides down when the pointer gets close
+// while dragging (Windows 11 style). The expand distance is smaller than the
+// collapse distance so the dock does not flicker at the boundary.
+const DOCK_PEEK_HEIGHT = 12;
+const DOCK_TOP_MARGIN = 8;          // overlay y inside dockClip when expanded
+const DOCK_EXPAND_DISTANCE = 60;
+const DOCK_COLLAPSE_DISTANCE = 100;
+const DOCK_ANIM_MS = 600;          // slide down
+const DOCK_RETRACT_MS = 300;       // slide back up
+const DOCK_CREDIT_FADE_OUT_MS = 150;
+let isDocked = false;
+let dockClip = null;   // clips the dock to its monitor
+let dockState = 'hidden'; // hidden | collapsed | expanding | expanded | collapsing | hiding
+let dockCollapsedY = 0;   // overlay y inside dockClip when collapsed
 
 let extensionUuid = "";
 
@@ -450,6 +471,10 @@ function enable() {
             SettingsManager.connectChanged(def.key, rebuildOverlay);
         });
         SettingsManager.connectChanged("enable-workspace-switcher", rebuildOverlay);
+        SettingsManager.connectChanged("show-help-text", rebuildOverlay);
+        SettingsManager.connectChanged("show-credits", rebuildOverlay);
+        SettingsManager.connectChanged("overlay-mode", rebuildOverlay);
+        SettingsManager.connectChanged("theme", rebuildOverlay);
 
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
@@ -487,29 +512,36 @@ function buildOverlayUIOnce() {
     try {
         if (overlayContainer) return;
 
+        isDocked = SettingsManager ? SettingsManager.isDockedMode() : false;
+        groupGridCols = isDocked ? DOCKED_GRID_COLS : FLOATING_GRID_COLS;
+        const isGlass = SettingsManager ? SettingsManager.isGlassTheme() : false;
+
         const activeLayouts = getActiveLayoutGroups();
-        const groupRows = Math.ceil(activeLayouts.length / GROUP_GRID_COLS);
+        const groupRows = Math.ceil(activeLayouts.length / groupGridCols);
         const cardWidth = 140;
         const cardHeight = 85;
         const gap = 10;
         const padding = 14;
-        const footerHeight = 65;
+        const footerEnabled = SettingsManager ? SettingsManager.isHelpTextEnabled() : true;
+        const footerHeight = footerEnabled ? 45 : 0;
+        const creditsEnabled = SettingsManager ? SettingsManager.isCreditsEnabled() : true;
 
         const wsEnabled = SettingsManager ? SettingsManager.isWorkspaceSwitcherEnabled() : true;
         const wsSectionHeight = wsEnabled ? WORKSPACE_SECTION_HEIGHT : 0;
 
-        const gridWidth = (GROUP_GRID_COLS * cardWidth) + ((GROUP_GRID_COLS - 1) * gap);
+        const gridWidth = (groupGridCols * cardWidth) + ((groupGridCols - 1) * gap);
         const gridHeight = (groupRows * cardHeight) + ((groupRows - 1) * gap);
 
         const popupWidth = gridWidth + (padding * 2);
-        const popupHeight = gridHeight + (padding * 2) + footerHeight + wsSectionHeight;
+        const creditHeight = creditsEnabled ? CREDIT_HEIGHT : 0;
+        const popupHeight = gridHeight + (padding * 2) + footerHeight + wsSectionHeight + creditHeight;
 
         overlayContainer = new St.Widget({
             reactive: true,
             can_focus: true,
             width: popupWidth,
             height: popupHeight,
-            style_class: 'drag-overlay-container',
+            style_class: isGlass ? 'drag-overlay-container snappy-glass' : 'drag-overlay-container',
             visible: false
         });
 
@@ -519,8 +551,8 @@ function buildOverlayUIOnce() {
         const gridOffsetY = padding;
 
         activeLayouts.forEach((layout, groupIdx) => {
-            let col = groupIdx % GROUP_GRID_COLS;
-            let row = Math.floor(groupIdx / GROUP_GRID_COLS);
+            let col = groupIdx % groupGridCols;
+            let row = Math.floor(groupIdx / groupGridCols);
 
             let groupX = padding + col * (cardWidth + gap);
             let groupY = gridOffsetY + row * (cardHeight + gap);
@@ -608,34 +640,30 @@ function buildOverlayUIOnce() {
 
         const footerOffsetY = gridOffsetY + gridHeight + 12;
 
-        let footerBox = new St.BoxLayout({
-            vertical: true,
-            x: padding,
-            y: footerOffsetY,
-            width: gridWidth,
-            height: footerHeight
-        });
+        if (footerEnabled) {
+            let footerBox = new St.BoxLayout({
+                vertical: true,
+                x: padding,
+                y: footerOffsetY,
+                width: gridWidth,
+                height: footerHeight
+            });
 
-        let titleLine = new St.Label({
-            text: "Snappy Window Tiling Ver 1.0",
-            style: "font-weight: bold; font-size: 16px; color: rgba(255,255,255,0.95); text-align: center;"
-        });
+            let helpLine = new St.Label({
+                text: "Press a number, or use the arrow keys, to select a zone.",
+                style: "font-size: 13px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
+            });
 
-        let helpLine = new St.Label({
-            text: "Press a number, or use the arrow keys, to select a zone.",
-            style: "font-size: 13px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
-        });
+            let optionalLine = new St.Label({
+                text: "(Optional) Hold Ctrl to expand selection.",
+                style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
+            });
 
-        let optionalLine = new St.Label({
-            text: "(Optional) Hold Ctrl to expand selection.",
-            style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
-        });
+            footerBox.add_actor(helpLine);
+            footerBox.add_actor(optionalLine);
 
-        footerBox.add_actor(titleLine);
-        footerBox.add_actor(helpLine);
-        footerBox.add_actor(optionalLine);
-
-        overlayContainer.add_actor(footerBox);
+            overlayContainer.add_actor(footerBox);
+        }
 
         if (wsEnabled) {
             const wsSectionY = footerOffsetY + footerHeight;
@@ -673,7 +701,31 @@ function buildOverlayUIOnce() {
             overlayContainer.add_actor(workspaceSectionContainer);
         }
 
-        Main.uiGroup.add_actor(overlayContainer);
+        if (creditsEnabled) {
+            // In docked mode it stays invisible until the dock slides out
+            // (see setDockCreditVisible).
+            creditLabel = new St.Label({
+                text: "Snappy Window Tiling by Martin Andersen",
+                x: 0,
+                y: popupHeight - creditHeight - 4,
+                width: popupWidth - padding,
+                opacity: isDocked ? 0 : 255,
+                style: "font-size: 10px; color: rgba(255,255,255,0.55); text-align: right;"
+            });
+            overlayContainer.add_actor(creditLabel);
+        }
+
+        if (isDocked) {
+            dockClip = new St.Widget({
+                reactive: false,
+                clip_to_allocation: true,
+                visible: false
+            });
+            dockClip.add_actor(overlayContainer);
+            Main.uiGroup.add_actor(dockClip);
+        } else {
+            Main.uiGroup.add_actor(overlayContainer);
+        }
     } catch (e) {
         global.logError("[drag-overlay] Error in buildOverlayUIOnce: " + e.message);
     }
@@ -682,27 +734,9 @@ function buildOverlayUIOnce() {
 function showOverlay() {
     try {
         if (!overlayContainer) buildOverlayUIOnce();
-        if (overlayContainer.visible) return;
+        if (isOverlayActive()) return;
 
         activeMonitor = getMonitorAtPointer();
-
-        const popupX = Math.floor(activeMonitor.x + (activeMonitor.width - overlayContainer.width) / 2);
-        var popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.15));
-        if(activeMonitor.height  < 1000){
-            popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.05));
-        }
-        
-
-        overlayContainer.set_position(popupX, popupY);
-
-        if (workspaceBoxesContainer) {
-            refreshWorkspaceBoxes();
-        }
-
-        zones.forEach(z => {
-            z.bounds.x = popupX + z.groupX + z.localX;
-            z.bounds.y = popupY + z.groupY + z.localY;
-        });
 
         selectedZoneIndices = [];
         initialZoneIndex = -1;
@@ -713,6 +747,32 @@ function showOverlay() {
         focusedTileInGroup = 0;
         lastMouseX = -1;
         lastMouseY = -1;
+
+        if (isDocked) {
+            // Cancel a slide-out still running from the previous hide.
+            dockState = 'collapsed';
+            overlayContainer.remove_all_transitions();
+            if (creditLabel) {
+                creditLabel.remove_all_transitions();
+                creditLabel.opacity = 0;
+            }
+            positionDock(activeMonitor);
+            overlayContainer.y = dockCollapsedY;
+            dockClip.show();
+            overlayContainer.show();
+            // Dragging: only the bottom edge peeks out; the dock slides down
+            // once the pointer gets close (see updateDockProximity).
+            if (!isHotkeyActivated) return;
+            expandDock();
+        } else {
+            const popupX = Math.floor(activeMonitor.x + (activeMonitor.width - overlayContainer.width) / 2);
+            var popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.15));
+            if(activeMonitor.height  < 1000){
+                popupY = Math.floor(activeMonitor.y + (activeMonitor.height * 0.05));
+            }
+            overlayContainer.set_position(popupX, popupY);
+            updateHitBounds(popupX, popupY);
+        }
 
         overlayContainer.show();
 
@@ -752,6 +812,177 @@ function showOverlay() {
     }
 }
 
+function isOverlayActive() {
+    return !!overlayContainer && overlayContainer.visible && dockState !== 'hiding';
+}
+
+/**
+ * Recomputes the absolute screen bounds used for pointer hit-testing of zones
+ * and workspace boxes, given the overlay's absolute screen position.
+ */
+function updateHitBounds(popupX, popupY) {
+    try {
+        if (workspaceBoxesContainer) {
+            refreshWorkspaceBoxes(popupX, popupY);
+        }
+
+        zones.forEach(z => {
+            z.bounds.x = popupX + z.groupX + z.localX;
+            z.bounds.y = popupY + z.groupY + z.localY;
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Error in updateHitBounds: " + e.message);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Docked mode helpers
+// ---------------------------------------------------------------------------
+
+function positionDock(monitor) {
+    try {
+        // Use the full monitor (not the work area) so the dock slides out
+        // from the very top edge of the screen, over any top panel.
+        dockClip.set_position(monitor.x, monitor.y);
+        dockClip.set_size(monitor.width, monitor.height);
+        overlayContainer.x = Math.floor((monitor.width - overlayContainer.width) / 2);
+        dockCollapsedY = DOCK_PEEK_HEIGHT - overlayContainer.height;
+    } catch (e) {
+        global.logError("[drag-overlay] Error in positionDock: " + e.message);
+    }
+}
+
+function distanceToRect(px, py, x, y, w, h) {
+    let dx = Math.max(x - px, 0, px - (x + w));
+    let dy = Math.max(y - py, 0, py - (y + h));
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function clearDockHover() {
+    if (selectedZoneIndices.length > 0) {
+        updateSelectedZones([]);
+    }
+    initialZoneIndex = -1;
+    activeZoneIndex = -1;
+    if (hoveredWorkspaceIdx !== -1 && workspaceBoxItems[hoveredWorkspaceIdx]) {
+        workspaceBoxItems[hoveredWorkspaceIdx].widget.remove_style_class_name('workspace-box-hover');
+    }
+    hoveredWorkspaceIdx = -1;
+}
+
+/**
+ * Fades the dock credit line in over the slide-out, or quickly out ahead of
+ * a retract.
+ */
+function setDockCreditVisible(visible) {
+    try {
+        if (!creditLabel || !isDocked) return;
+        creditLabel.ease({
+            opacity: visible ? 255 : 0,
+            duration: visible ? DOCK_ANIM_MS : DOCK_CREDIT_FADE_OUT_MS,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Error in setDockCreditVisible: " + e.message);
+    }
+}
+
+function expandDock() {
+    try {
+        dockState = 'expanding';
+        updateHitBounds(dockClip.x + overlayContainer.x, dockClip.y + DOCK_TOP_MARGIN);
+        setDockCreditVisible(true);
+        // ease() starts from the current y, so reversing a collapse mid-way
+        // continues smoothly from where the dock is.
+        overlayContainer.ease({
+            y: DOCK_TOP_MARGIN,
+            duration: DOCK_ANIM_MS,
+            mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
+            onComplete: () => {
+                if (dockState !== 'expanding') return;
+                dockState = 'expanded';
+                // Force the next tracking tick to hit-test even if the
+                // pointer has not moved since the dock started sliding.
+                lastMouseX = -1;
+                lastMouseY = -1;
+            }
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Error in expandDock: " + e.message);
+    }
+}
+
+function collapseDock(animate) {
+    try {
+        clearDockHover();
+
+        let finish = () => {
+            dockState = 'collapsed';
+            lastMouseX = -1;
+            lastMouseY = -1;
+        };
+
+        if (!animate) {
+            overlayContainer.remove_all_transitions();
+            overlayContainer.y = dockCollapsedY;
+            if (creditLabel) {
+                creditLabel.remove_all_transitions();
+                creditLabel.opacity = 0;
+            }
+            finish();
+            return;
+        }
+
+        dockState = 'collapsing';
+        setDockCreditVisible(false);
+        overlayContainer.ease({
+            y: dockCollapsedY,
+            duration: DOCK_RETRACT_MS,
+            mode: Clutter.AnimationMode.EASE_IN_OUT_CUBIC,
+            onComplete: () => {
+                if (dockState === 'collapsing') finish();
+            }
+        });
+    } catch (e) {
+        global.logError("[drag-overlay] Error in collapseDock: " + e.message);
+    }
+}
+
+/**
+ * Drives the docked-mode dock while dragging: follows the pointer to other
+ * monitors, slides the dock down when the pointer nears its peeking edge and
+ * back up when the pointer moves away. Returns true when the dock is fully
+ * expanded and zone hover should be processed.
+ */
+function updateDockProximity(mx, my) {
+    try {
+        let monitor = getMonitorAtPointer();
+        if (monitor !== activeMonitor) {
+            activeMonitor = monitor;
+            collapseDock(false);
+            positionDock(monitor);
+        }
+
+        let absX = dockClip.x + overlayContainer.x;
+
+        if (dockState === 'collapsed' || dockState === 'collapsing') {
+            if (distanceToRect(mx, my, absX, dockClip.y, overlayContainer.width, DOCK_PEEK_HEIGHT) <= DOCK_EXPAND_DISTANCE) {
+                expandDock();
+            }
+            return false;
+        }
+
+        if (distanceToRect(mx, my, absX, dockClip.y + DOCK_TOP_MARGIN, overlayContainer.width, overlayContainer.height) > DOCK_COLLAPSE_DISTANCE) {
+            collapseDock(true);
+            return false;
+        }
+        return dockState === 'expanded';
+    } catch (e) {
+        global.logError("[drag-overlay] Error in updateDockProximity: " + e.message);
+        return false;
+    }
+}
+
 function resetAllVisualSelections() {
     try {
         zones.forEach(zone => {
@@ -780,7 +1011,11 @@ function resetAllVisualSelections() {
 
 function hideOverlay() {
     try {
-        if (overlayContainer && overlayContainer.visible) {
+        if (isOverlayActive()) {
+            // Docked mode slides back up first; floating mode hides immediately.
+            dockState = isDocked ? 'hiding' : 'hidden';
+            overlayContainer.remove_all_transitions();
+
             if (modalGrabbed) {
                 Main.popModal(overlayContainer);
                 modalGrabbed = false;
@@ -824,10 +1059,32 @@ function hideOverlay() {
             focusedGroupIdx = 0;
             focusedTileInGroup = 0;
 
-            overlayContainer.hide();
+            if (isDocked) {
+                setDockCreditVisible(false);
+                overlayContainer.ease({
+                    y: dockCollapsedY,
+                    duration: DOCK_RETRACT_MS,
+                    mode: Clutter.AnimationMode.EASE_IN_OUT_CUBIC,
+                    onComplete: () => {
+                        if (dockState === 'hiding') finishHideOverlay();
+                    }
+                });
+            } else {
+                finishHideOverlay();
+            }
         }
     } catch (e) {
         global.logError("[drag-overlay] Error in hideOverlay: " + e.message);
+    }
+}
+
+function finishHideOverlay() {
+    try {
+        dockState = 'hidden';
+        overlayContainer.hide();
+        if (dockClip) dockClip.hide();
+    } catch (e) {
+        global.logError("[drag-overlay] Error in finishHideOverlay: " + e.message);
     }
 }
 
@@ -835,9 +1092,18 @@ function destroyOverlayUI() {
     try {
         if (overlayContainer) {
             hideOverlay();
-            Main.uiGroup.remove_actor(overlayContainer);
-            overlayContainer.destroy();
+            overlayContainer.remove_all_transitions();
+            if (dockClip) {
+                // Destroying the clip also destroys the overlay inside it.
+                Main.uiGroup.remove_actor(dockClip);
+                dockClip.destroy();
+                dockClip = null;
+            } else {
+                Main.uiGroup.remove_actor(overlayContainer);
+                overlayContainer.destroy();
+            }
             overlayContainer = null;
+            creditLabel = null;
             workspaceSectionContainer = null;
             workspaceBoxesContainer = null;
             workspaceBoxItems = [];
@@ -853,7 +1119,7 @@ function destroyOverlayUI() {
 function onHotkeyTriggered() {
     try {
         SettingsManager.log("onHotkeyTriggered() overlayVisible=" + (overlayContainer ? overlayContainer.visible : 'no-container'));
-        if (overlayContainer && overlayContainer.visible) {
+        if (isOverlayActive()) {
             hideOverlay();
         } else {
             activeWindow = global.display.get_focus_window();
@@ -908,7 +1174,9 @@ function onGrabEnd(display, screen, window, op) {
             snapWindowToSelectedZones(activeWindow, selectedZoneIndices);
         }
 
-        if (overlayContainer && overlayContainer.visible) {
+        if (isDocked) {
+            hideOverlay();
+        } else if (isOverlayActive()) {
             hideTimerId = Mainloop.timeout_add(300, () => {
                 hideOverlay();
                 hideTimerId = 0;
@@ -1047,7 +1315,7 @@ function updateSelectedZones(newIndices) {
 
 /**
  * Moves the Step 1 group focus cursor by one grid cell in the given
- * direction. Grid is GROUP_GRID_COLS columns wide, row-major, matching the
+ * direction. Grid is groupGridCols columns wide, row-major, matching the
  * layout used in buildOverlayUIOnce().
  */
 function moveGroupFocus(dx, dy) {
@@ -1056,16 +1324,16 @@ function moveGroupFocus(dx, dy) {
         let total = groupCards.length;
 
         if (dx !== 0) {
-            let currentRow = Math.floor(focusedGroupIdx / GROUP_GRID_COLS);
+            let currentRow = Math.floor(focusedGroupIdx / groupGridCols);
             let candidate = focusedGroupIdx + dx;
-            let candidateRow = Math.floor(candidate / GROUP_GRID_COLS);
+            let candidateRow = Math.floor(candidate / groupGridCols);
             if (candidate >= 0 && candidate < total && candidateRow === currentRow) {
                 newIdx = candidate;
             }
         }
 
         if (dy !== 0) {
-            let candidate = focusedGroupIdx + (dy * GROUP_GRID_COLS);
+            let candidate = focusedGroupIdx + (dy * groupGridCols);
             if (candidate >= 0 && candidate < total) {
                 newIdx = candidate;
             }
@@ -1393,6 +1661,10 @@ function startMouseTracking() {
             lastMouseY = mouseY;
             lastCtrlState = isCtrlPressed;
 
+            if (isDocked && !isHotkeyActivated && !updateDockProximity(mouseX, mouseY)) {
+                return true;
+            }
+
             updateZoneHover(mouseX, mouseY, isCtrlPressed || isPressHeld);
             updateWorkspaceHover(mouseX, mouseY);
             return true;
@@ -1442,12 +1714,12 @@ function moveWindowToWorkspace(win, wsIdx, savedRect) {
     }
 }
 
-function refreshWorkspaceBoxes() {
+function refreshWorkspaceBoxes(popupX, popupY) {
     try {
         if (!workspaceBoxesContainer) return;
 
         let children = workspaceBoxesContainer.get_children();
-        children.forEach(c => workspaceBoxesContainer.remove_actor(c));
+        children.forEach(c => c.destroy());
         workspaceBoxItems = [];
         hoveredWorkspaceIdx = -1;
 
@@ -1463,8 +1735,8 @@ function refreshWorkspaceBoxes() {
         let boxWidth = Math.max(28, Math.floor((containerWidth - totalGaps) / totalItems));
 
         // Absolute screen position of the boxes container
-        let wsBoxAbsX = overlayContainer.x + workspaceSectionContainer.x + workspaceBoxesContainer.x;
-        let wsBoxAbsY = overlayContainer.y + workspaceSectionContainer.y + workspaceBoxesContainer.y;
+        let wsBoxAbsX = popupX + workspaceSectionContainer.x + workspaceBoxesContainer.x;
+        let wsBoxAbsY = popupY + workspaceSectionContainer.y + workspaceBoxesContainer.y;
 
         for (let i = 0; i < nWs; i++) {
             let isActive = (i === activeWsIdx);
