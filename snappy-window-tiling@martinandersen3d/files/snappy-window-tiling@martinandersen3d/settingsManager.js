@@ -115,6 +115,30 @@ function isWorkspaceSwitcherEnabled() {
     }
 }
 
+function isHelpTextEnabled() {
+    try {
+        return _settings ? _settings.getValue("show-help-text") : true;
+    } catch (e) {
+        return true;
+    }
+}
+
+function isCreditsEnabled() {
+    try {
+        return _settings ? _settings.getValue("show-credits") : true;
+    } catch (e) {
+        return true;
+    }
+}
+
+function isDockedMode() {
+    try {
+        return _settings ? _settings.getValue("overlay-mode") === "docked" : false;
+    } catch (e) {
+        return false;
+    }
+}
+
 /**
  * Connect a callback to a settings key change.
  * @param {string} key - settings key name
