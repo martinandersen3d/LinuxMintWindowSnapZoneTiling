@@ -46,6 +46,9 @@ let dragStartX = -1;
 let dragStartY = -1;
 let preDragWindowRect = null;
 
+let creditLabel = null;   // small author line at the bottom of the overlay
+const CREDIT_HEIGHT = 16;
+
 let workspaceSectionContainer = null;
 let workspaceBoxesContainer = null;
 let workspaceBoxItems = [];
@@ -450,6 +453,8 @@ function enable() {
             SettingsManager.connectChanged(def.key, rebuildOverlay);
         });
         SettingsManager.connectChanged("enable-workspace-switcher", rebuildOverlay);
+        SettingsManager.connectChanged("show-help-text", rebuildOverlay);
+        SettingsManager.connectChanged("show-credits", rebuildOverlay);
 
         grabBeginId = global.display.connect('grab-op-begin', onGrabBegin);
         grabEndId = global.display.connect('grab-op-end', onGrabEnd);
@@ -493,7 +498,9 @@ function buildOverlayUIOnce() {
         const cardHeight = 85;
         const gap = 10;
         const padding = 14;
-        const footerHeight = 65;
+        const footerEnabled = SettingsManager ? SettingsManager.isHelpTextEnabled() : true;
+        const footerHeight = footerEnabled ? 45 : 0;
+        const creditsEnabled = SettingsManager ? SettingsManager.isCreditsEnabled() : true;
 
         const wsEnabled = SettingsManager ? SettingsManager.isWorkspaceSwitcherEnabled() : true;
         const wsSectionHeight = wsEnabled ? WORKSPACE_SECTION_HEIGHT : 0;
@@ -502,7 +509,8 @@ function buildOverlayUIOnce() {
         const gridHeight = (groupRows * cardHeight) + ((groupRows - 1) * gap);
 
         const popupWidth = gridWidth + (padding * 2);
-        const popupHeight = gridHeight + (padding * 2) + footerHeight + wsSectionHeight;
+        const creditHeight = creditsEnabled ? CREDIT_HEIGHT : 0;
+        const popupHeight = gridHeight + (padding * 2) + footerHeight + wsSectionHeight + creditHeight;
 
         overlayContainer = new St.Widget({
             reactive: true,
@@ -608,34 +616,30 @@ function buildOverlayUIOnce() {
 
         const footerOffsetY = gridOffsetY + gridHeight + 12;
 
-        let footerBox = new St.BoxLayout({
-            vertical: true,
-            x: padding,
-            y: footerOffsetY,
-            width: gridWidth,
-            height: footerHeight
-        });
+        if (footerEnabled) {
+            let footerBox = new St.BoxLayout({
+                vertical: true,
+                x: padding,
+                y: footerOffsetY,
+                width: gridWidth,
+                height: footerHeight
+            });
 
-        let titleLine = new St.Label({
-            text: "Snappy Window Tiling Ver 1.0",
-            style: "font-weight: bold; font-size: 16px; color: rgba(255,255,255,0.95); text-align: center;"
-        });
+            let helpLine = new St.Label({
+                text: "Press a number, or use the arrow keys, to select a zone.",
+                style: "font-size: 13px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
+            });
 
-        let helpLine = new St.Label({
-            text: "Press a number, or use the arrow keys, to select a zone.",
-            style: "font-size: 13px; color: rgba(230,230,230,0.9); font-weight: 500; text-align: center;"
-        });
+            let optionalLine = new St.Label({
+                text: "(Optional) Hold Ctrl to expand selection.",
+                style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
+            });
 
-        let optionalLine = new St.Label({
-            text: "(Optional) Hold Ctrl to expand selection.",
-            style: "font-size: 12px; color: rgba(170,170,170,0.8); text-align: center;"
-        });
+            footerBox.add_actor(helpLine);
+            footerBox.add_actor(optionalLine);
 
-        footerBox.add_actor(titleLine);
-        footerBox.add_actor(helpLine);
-        footerBox.add_actor(optionalLine);
-
-        overlayContainer.add_actor(footerBox);
+            overlayContainer.add_actor(footerBox);
+        }
 
         if (wsEnabled) {
             const wsSectionY = footerOffsetY + footerHeight;
@@ -671,6 +675,17 @@ function buildOverlayUIOnce() {
             });
             workspaceSectionContainer.add_actor(workspaceBoxesContainer);
             overlayContainer.add_actor(workspaceSectionContainer);
+        }
+
+        if (creditsEnabled) {
+            creditLabel = new St.Label({
+                text: "Snappy Window Tiling by Martin Andersen",
+                x: 0,
+                y: popupHeight - creditHeight - 4,
+                width: popupWidth - padding,
+                style: "font-size: 10px; color: rgba(255,255,255,0.55); text-align: right;"
+            });
+            overlayContainer.add_actor(creditLabel);
         }
 
         Main.uiGroup.add_actor(overlayContainer);
@@ -838,6 +853,7 @@ function destroyOverlayUI() {
             Main.uiGroup.remove_actor(overlayContainer);
             overlayContainer.destroy();
             overlayContainer = null;
+            creditLabel = null;
             workspaceSectionContainer = null;
             workspaceBoxesContainer = null;
             workspaceBoxItems = [];

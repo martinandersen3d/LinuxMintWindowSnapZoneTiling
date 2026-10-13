@@ -10,7 +10,7 @@
         "features-section": {
             "type": "section",
             "title": "Features",
-            "keys": ["enable-drag-snapping", "enable-keyboard-snapping", "enable-workspace-switcher"]
+            "keys": ["enable-drag-snapping", "enable-keyboard-snapping", "enable-workspace-switcher", "show-help-text", "show-credits"]
         },
         "padding-section": {
             "type": "section",
@@ -75,6 +75,16 @@
     "enable-workspace-switcher": {
         "type": "switch",
         "description": "Show workspace switcher row (move window to workspace)",
+        "default": true
+    },
+    "show-help-text": {
+        "type": "switch",
+        "description": "Show help text below the zones",
+        "default": true
+    },
+    "show-credits": {
+        "type": "switch",
+        "description": "Show credits (small author line at the bottom)",
         "default": true
     },
     "outer-screen-padding": {

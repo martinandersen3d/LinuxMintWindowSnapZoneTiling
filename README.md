@@ -100,6 +100,8 @@ You can easily change the shortcut key used to trigger the overlay:
 | **Enable drag-to-snap** | ✅ On | Show the zone overlay when dragging a window by its titlebar. Disable this if you only want keyboard-based snapping. |
 | **Enable keyboard hotkey** | ✅ On | Register the global hotkey that opens the overlay for the focused window. Disable this if you only want drag-to-snap. |
 | **Show workspace switcher** | ✅ On | Show the workspace row at the bottom of the overlay. Disable to hide it and reduce the overlay height. |
+| **Show help text** | ✅ On | Show the key hints below the zones. |
+| **Show credits** | ✅ On | Show the small author line at the bottom of the overlay. |
 
 ### Window Padding
 
